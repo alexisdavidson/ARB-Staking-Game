@@ -4,9 +4,8 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import {DefaultOperatorFilterer} from "./ofr/DefaultOperatorFilterer.sol";
 
-contract PrimeBabyDragon is Ownable, ERC721Enumerable, DefaultOperatorFilterer {
+contract PrimeBabyDragon is Ownable, ERC721Enumerable {
     address public primeApeBurnerAddress;
     uint256 public maxSupply = 1111;
     uint256 public phase1Supply = 555;
@@ -92,22 +91,6 @@ contract PrimeBabyDragon is Ownable, ERC721Enumerable, DefaultOperatorFilterer {
 
     function contractURI() public pure returns (string memory) {
         return "ipfs://bafybeibnymqvzcs62pvkky4rfdfxfr645rxyx67t4tqztofagf7ueddg24/contractMetadata.json";
-    }
-
-    function transferFrom(address from, address to, uint256 tokenId) public override(ERC721, IERC721) onlyAllowedOperator(from) {
-        super.transferFrom(from, to, tokenId);
-    }
-
-    function safeTransferFrom(address from, address to, uint256 tokenId) public override(ERC721, IERC721) onlyAllowedOperator(from) {
-        super.safeTransferFrom(from, to, tokenId);
-    }
-
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data)
-        public
-        override(ERC721, IERC721)
-        onlyAllowedOperator(from)
-    {
-        super.safeTransferFrom(from, to, tokenId, data);
     }
 
     function setBaseURI(string memory _newBaseURI) external onlyOwner {

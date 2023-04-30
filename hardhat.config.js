@@ -46,6 +46,15 @@ module.exports = {
        gas: 3100000,
        gasPrice: 55000000000,
      },
+     arbitrumGoerli: {
+       url: "https://goerli-rollup.arbitrum.io/rpc",
+       chainId: 421613,
+       //accounts: [GOERLI_TESTNET_PRIVATE_KEY]
+     },
+     arbitrumOne: {
+       url: "https://arb1.arbitrum.io/rpc",
+       //accounts: [ARBITRUM_MAINNET_TEMPORARY_PRIVATE_KEY]
+     }
     //  mainnet: {
     //   url: process.env.REACT_APP_API_URL_MAINNET_INFURA,
     //   accounts: ['0x' + process.env.REACT_APP_PRIVATE_KEY_GOERLI_KENNY],
