@@ -20,12 +20,14 @@ contract PoolMaster is Ownable {
     uint256 public usdcStakeFee = 100; // 1.00%
 
     Pool[] private pools;
-    mapping(address => Staker) private stakers;
+    mapping(address => Staker) private stakersMapping;
+    Staker[] private stakersPool1;
+    Staker[] private stakersPool2;
+    Staker[] private stakersPool3;
 
     struct Pool {
         address token;
         uint256 timestampStartEpoch;
-        Staker[] stakers;
         address lastWinner;
         uint256 nativeCount;
         uint256 usdcCount;
@@ -42,13 +44,13 @@ contract PoolMaster is Ownable {
     event MintSuccessful(address user, uint256 tokenId, bool isAlpha);
 
     constructor() {
-        pools.push(Pool(address(0), 0, new Staker[](0), address(0), 0, 0));
-        pools.push(Pool(address(0), 0, new Staker[](0), address(0), 0, 0));
-        pools.push(Pool(address(0), 0, new Staker[](0), address(0), 0, 0));
+        pools.push(Pool(address(0), 0, address(0), 0, 0));
+        pools.push(Pool(address(0), 0, address(0), 0, 0));
+        pools.push(Pool(address(0), 0, address(0), 0, 0));
     }
 
     function stake(uint256 _poolId, uint256 _usdcAmount) public payable {
-        require(stakers[msg.sender].stakerAddress == address(0), "User already staked for this epoch");
+        require(stakersMapping[msg.sender].stakerAddress == address(0), "User already staked for this epoch");
 
         uint256 _stakeAmount = msg.value;
         if (_usdcAmount > 0) {
@@ -58,16 +60,23 @@ contract PoolMaster is Ownable {
 
         Staker memory _staker = Staker(_poolId, _stakeAmount, _usdcAmount > 0, msg.sender);
         
-        stakers[msg.sender] = _staker;
-        pools[_poolId].stakers.push(_staker);
+        stakersMapping[msg.sender] = _staker;
         pools[_poolId].nativeCount += _usdcAmount > 0 ? 0 : 1;
         pools[_poolId].usdcCount += _usdcAmount > 0 ? 1 : 0;
+
+        if (_poolId == 0) {
+            stakersPool1.push(_staker);
+        } else if (_poolId == 1) {
+            stakersPool2.push(_staker);
+        } else if (_poolId == 2) {
+            stakersPool3.push(_staker);
+        }
     }
 
     function startEpoch(address _token1, address _token2) public onlyOwner {
-        uint256 _pool0Length = pools[0].stakers.length;
-        uint256 _pool1Length = pools[1].stakers.length;
-        uint256 _pool2Length = pools[2].stakers.length;
+        uint256 _pool0Length = stakersPool1.length;
+        uint256 _pool1Length = stakersPool2.length;
+        uint256 _pool2Length = stakersPool3.length;
         require(_pool0Length == 0 || _pool1Length == 0 || _pool2Length == 0, "Epoch has not ended");
 
         pools[0].token = _token1;
@@ -89,10 +98,10 @@ contract PoolMaster is Ownable {
     // Der Pool, dessen token den anderen in absoluten % outperformt hat, gewinnt
     function endEpoch(uint256 _poolWinnerId) public onlyOwner {
         uint256 _poolLoserId = 1 - _poolWinnerId;
-        uint256 _poolLoserLength = pools[_poolLoserId].stakers.length;
-        uint256 _poolWinnerLength = pools[_poolWinnerId].stakers.length;
-
-        require(_poolLoserLength > 0 || _poolWinnerLength > 0, "No staker in any of the first 2 pools");
+        uint256 _stakersPool1Length = stakersPool1.length;
+        uint256 _stakersPool2Length = stakersPool2.length;
+        uint256 _poolLoserLength = _poolLoserId == 0 ? stakersPool1.length : stakersPool2.length;
+        uint256 _poolWinnerLength = _poolWinnerId == 0 ? stakersPool1.length : stakersPool2.length;
 
         pools[_poolLoserId].lastWinner = address(0);
         pools[_poolWinnerId].lastWinner = pools[_poolWinnerId].token;
@@ -101,18 +110,20 @@ contract PoolMaster is Ownable {
         uint256 _usdcLostAmount = 0;
         // Verlierer kriegen 12.5% ihrer gestakten Tokens abgezogen
         for(uint256 i = 0; i < _poolLoserLength;) {
-            uint256 _userLoseAmount = (pools[_poolLoserId].stakers[i].amount * loserTokensPercent) / 10_000;
-            uint256 _userKeepAmount = pools[_poolLoserId].stakers[i].amount - _userLoseAmount;
+            Staker memory _staker = _poolLoserId == 0 ? stakersPool1[i] : stakersPool2[i];
 
-            if (pools[_poolLoserId].stakers[i].isUsdc) {
-                usdc.transfer(pools[_poolLoserId].stakers[i].stakerAddress, _userKeepAmount);
+            uint256 _userLoseAmount = (_staker.amount * loserTokensPercent) / 10_000;
+            uint256 _userKeepAmount = _staker.amount - _userLoseAmount;
+
+            if (_staker.isUsdc) {
+                usdc.transfer(_staker.stakerAddress, _userKeepAmount);
                 _usdcLostAmount += _userLoseAmount;
             } else {
-                payable(pools[_poolLoserId].stakers[i].stakerAddress).transfer(_userKeepAmount);
+                payable(_staker.stakerAddress).transfer(_userKeepAmount);
                 _nativeLostAmount += _userLoseAmount;
             }
 
-            stakers[pools[_poolLoserId].stakers[i].stakerAddress] = Staker(0, 0, false, address(0));
+            stakersMapping[_staker.stakerAddress] = Staker(0, 0, false, address(0));
             unchecked { ++ i; }
         }
 
@@ -129,13 +140,14 @@ contract PoolMaster is Ownable {
         }
 
         for(uint256 i = 0; i < _poolWinnerLength;) {
-            if (pools[_poolWinnerId].stakers[i].isUsdc) {
-                usdc.transfer(pools[_poolWinnerId].stakers[i].stakerAddress, pools[_poolWinnerId].stakers[i].amount + _usdcUserWinAmount);
+            Staker memory _staker = _poolWinnerId == 0 ? stakersPool1[i] : stakersPool2[i];
+            if (_staker.isUsdc) {
+                usdc.transfer(_staker.stakerAddress, _staker.amount + _usdcUserWinAmount);
             } else {
-                payable(pools[_poolWinnerId].stakers[i].stakerAddress).transfer(pools[_poolWinnerId].stakers[i].amount + _nativeUserWinAmount);
+                payable(_staker.stakerAddress).transfer(_staker.amount + _nativeUserWinAmount);
             }
 
-            stakers[pools[_poolWinnerId].stakers[i].stakerAddress] = Staker(0, 0, false, address(0));
+            stakersMapping[_staker.stakerAddress] = Staker(0, 0, false, address(0));
             unchecked { ++ i; }
         }
 
@@ -146,7 +158,7 @@ contract PoolMaster is Ownable {
         payable(address(0)).transfer(_nativeBurnAmount);
 
         // die restlichen 2% geht an Pool3 staker
-        uint256 _pool3Length = pools[2].stakers.length;
+        uint256 _pool3Length = stakersPool3.length;
         uint256 _nativePool3Amount = (_nativeLostAmount * pool3TokensPercent) / 10_000;
         uint256 _usdcPool3Amount = (_usdcLostAmount * pool3TokensPercent) / 10_000;
         uint256 _nativeUserPool3Amount = 0;
@@ -159,19 +171,21 @@ contract PoolMaster is Ownable {
         }
 
         for(uint256 i = 0; i < _pool3Length;) {
-            if (pools[2].stakers[i].isUsdc) {
-                usdc.transfer(pools[2].stakers[i].stakerAddress, pools[2].stakers[i].amount + _usdcUserPool3Amount);
+            Staker memory _staker = stakersPool3[i];
+
+            if (_staker.isUsdc) {
+                usdc.transfer(_staker.stakerAddress, _staker.amount + _usdcUserPool3Amount);
             } else {
-                payable(pools[2].stakers[i].stakerAddress).transfer(pools[2].stakers[i].amount + _nativeUserPool3Amount);
+                payable(_staker.stakerAddress).transfer(_staker.amount + _nativeUserPool3Amount);
             }
 
-            stakers[pools[2].stakers[i].stakerAddress] = Staker(0, 0, false, address(0));
+            stakersMapping[_staker.stakerAddress] = Staker(0, 0, false, address(0));
             unchecked { ++ i; }
         }
 
-        delete pools[0].stakers;
-        delete pools[1].stakers;
-        delete pools[2].stakers;
+        delete stakersPool1;
+        delete stakersPool2;
+        delete stakersPool3;
     }
 
     // GETTERS
