@@ -114,7 +114,7 @@ contract PoolMaster is Ownable {
                 _nativeLostAmount += _userLoseAmount;
             }
 
-            unchecked {++ i; }
+            unchecked { ++ i; }
         }
 
         // 10% davon wird an die Gewinner aufgeteilt
@@ -130,7 +130,7 @@ contract PoolMaster is Ownable {
                 payable(pools[_poolWinnerId].stakers[i].stakerAddress).transfer(pools[_poolWinnerId].stakers[i].amount + _nativeUserWinAmount);
             }
 
-            unchecked {++ i; }
+            unchecked { ++ i; }
         }
 
         // 0.5% geburned
@@ -145,6 +145,7 @@ contract PoolMaster is Ownable {
         uint256 _usdcPool3Amount = (_usdcLostAmount * pool3TokensPercent) / 10_000;
         uint256 _nativeUserPool3Amount = _nativePool3Amount / pools[2].nativeCount;
         uint256 _usdcUserPool3Amount = _usdcPool3Amount / pools[2].usdcCount;
+        // todo: verify by zero for each division!
 
         for(uint256 i = 0; i < _pool3Length;) {
             if (pools[2].stakers[i].isUsdc) {
@@ -153,7 +154,7 @@ contract PoolMaster is Ownable {
                 payable(pools[2].stakers[i].stakerAddress).transfer(pools[2].stakers[i].amount + _nativeUserPool3Amount);
             }
 
-            unchecked {++ i; }
+            unchecked { ++ i; }
         }
 
         delete pools[0].stakers;
