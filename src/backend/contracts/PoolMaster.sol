@@ -56,11 +56,7 @@ contract PoolMaster is Ownable {
         }
         require(_stakeAmount > 0, "Must stake more than 0 tokens");
 
-        Staker memory _staker;
-        _staker.poolId = _poolId;
-        _staker.amount = _stakeAmount;
-        _staker.isUsdc = _usdcAmount > 0;
-        _staker.stakerAddress = msg.sender;
+        Staker memory _staker = Staker(_poolId, _stakeAmount, _usdcAmount > 0, msg.sender);
         
         stakers[msg.sender] = _staker;
         pools[_poolId].stakers.push(_staker);
