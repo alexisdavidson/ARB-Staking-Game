@@ -4,9 +4,12 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract PoolMaster is Ownable {
-    ERC20 public usdc;
+    using SafeERC20 for IERC20;
+    IERC20 public usdc;
     
     uint256 public bettingPhaseDuration = 8 * 60 * 60; // 8 Hours
     uint256 public battlingPhaseDuration = 24 * 60 * 60; // 24 Hours
@@ -50,11 +53,13 @@ contract PoolMaster is Ownable {
     }
 
     function stake(uint256 _poolId, uint256 _usdcAmount) public payable {
+        require(_poolId <= 2, "Invalid pool Id");
         require(stakersMapping[msg.sender].stakerAddress == address(0), "User already staked for this epoch");
 
         uint256 _stakeAmount = msg.value;
         if (_usdcAmount > 0) {
             _stakeAmount = (_usdcAmount * (10_000 - usdcStakeFee)) / 10_000;
+            usdc.safeTransferFrom(msg.sender, address(this), _stakeAmount);
         }
         require(_stakeAmount > 0, "Must stake more than 0 tokens");
 
@@ -77,7 +82,7 @@ contract PoolMaster is Ownable {
         uint256 _pool0Length = stakersPool1.length;
         uint256 _pool1Length = stakersPool2.length;
         uint256 _pool2Length = stakersPool3.length;
-        require(_pool0Length == 0 || _pool1Length == 0 || _pool2Length == 0, "Epoch has not ended");
+        require(_pool0Length == 0 || _pool1Length == 0 || _pool2Length == 0, "Current epoch has not ended");
 
         pools[0].token = _token1;
         pools[1].token = _token2;
@@ -98,8 +103,6 @@ contract PoolMaster is Ownable {
     // Der Pool, dessen token den anderen in absoluten % outperformt hat, gewinnt
     function endEpoch(uint256 _poolWinnerId) public onlyOwner {
         uint256 _poolLoserId = 1 - _poolWinnerId;
-        uint256 _stakersPool1Length = stakersPool1.length;
-        uint256 _stakersPool2Length = stakersPool2.length;
         uint256 _poolLoserLength = _poolLoserId == 0 ? stakersPool1.length : stakersPool2.length;
         uint256 _poolWinnerLength = _poolWinnerId == 0 ? stakersPool1.length : stakersPool2.length;
 
@@ -225,7 +228,7 @@ contract PoolMaster is Ownable {
     }
 
     function setUsdcAddress(address _usdcAddress) public onlyOwner {
-        usdc = ERC20(_usdcAddress);
+        usdc = IERC20(_usdcAddress);
     }
 
     function setUnstakeFee(uint256 _unstakeFee) public onlyOwner {
