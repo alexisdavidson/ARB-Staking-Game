@@ -22,6 +22,8 @@ contract PoolMaster is Ownable {
     uint256 public unstakeFee = 200; // 2.00%
     uint256 public usdcStakeFee = 100; // 1.00%
 
+    bool public epochEnded = true;
+
     Pool[] private pools;
     mapping(address => Staker) private stakersMapping;
     Staker[] private stakersPool1;
@@ -53,6 +55,8 @@ contract PoolMaster is Ownable {
     }
 
     function stake(uint256 _poolId, uint256 _usdcAmount) public payable {
+        require(!epochEnded, "Epoch not started yet");
+
         require(_poolId <= 2, "Invalid pool Id");
         require(stakersMapping[msg.sender].stakerAddress == address(0), "User already staked for this epoch");
 
@@ -79,10 +83,8 @@ contract PoolMaster is Ownable {
     }
 
     function startEpoch(address _token1, address _token2) public onlyOwner {
-        uint256 _pool0Length = stakersPool1.length;
-        uint256 _pool1Length = stakersPool2.length;
-        uint256 _pool2Length = stakersPool3.length;
-        require(_pool0Length == 0 || _pool1Length == 0 || _pool2Length == 0, "Current epoch has not ended");
+        require(epochEnded, "Current epoch has not ended");
+        epochEnded = false;
 
         pools[0].token = _token1;
         pools[1].token = _token2;
@@ -102,6 +104,9 @@ contract PoolMaster is Ownable {
 
     // Der Pool, dessen token den anderen in absoluten % outperformt hat, gewinnt
     function endEpoch(uint256 _poolWinnerId) public onlyOwner {
+        require(!epochEnded, "Current epoch already ended");
+        epochEnded = true;
+
         uint256 _poolLoserId = 1 - _poolWinnerId;
         uint256 _poolLoserLength = _poolLoserId == 0 ? stakersPool1.length : stakersPool2.length;
         uint256 _poolWinnerLength = _poolWinnerId == 0 ? stakersPool1.length : stakersPool2.length;
@@ -157,7 +162,7 @@ contract PoolMaster is Ownable {
         // 0.5% geburned
         uint256 _nativeBurnAmount = (_nativeLostAmount * burnedTokensPercent) / 10_000;
         uint256 _usdcBurnAmount = (_usdcLostAmount * burnedTokensPercent) / 10_000;
-        usdc.transfer(address(0), _usdcBurnAmount);
+        usdc.transfer(0x000000000000000000000000000000000000dEaD, _usdcBurnAmount);
         payable(address(0)).transfer(_nativeBurnAmount);
 
         // die restlichen 2% geht an Pool3 staker
