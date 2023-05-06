@@ -74,12 +74,16 @@ describe("PoolMaster", async function() {
             let balanceAddr2AfterStake = toWei(fromWei(balanceAddr2Start) - 1_000)
             console.log("balanceAddr2AfterStake", balanceAddr2AfterStake)
             expect(await usdc.balanceOf(addr2.address)).to.equal(balanceAddr2AfterStake);
+
+            await poolMaster.connect(deployer).endEpoch(0);
+            
+            let balanceAddr2After = toWei(fromWei(balanceAddr2AfterStake) + 1_000 * 0.99 - (1_000 * 0.99) * 0.125)
+            console.log("balanceAddr2After", balanceAddr2After)
+            expect(await usdc.balanceOf(addr2.address)).to.equal(balanceAddr2After);
             
             // let balanceDeployerBefore = await usdc.balanceOf(deployer.address)
             // let balanceAddr2Before = await addr2.balanceOf(deployer.address)
             // console.log("balanceAddr2Before", balanceAddr2Before)
-
-            // await poolMaster.connect(deployer).endEpoch(0);
             
             // let balanceAddr2After = toWei(fromWei(balanceAddr2Before) + 1_000 - 1_000 * 0.125)
             // console.log("balanceAddr2After", balanceAddr2After)
