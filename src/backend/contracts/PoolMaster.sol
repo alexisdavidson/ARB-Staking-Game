@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "hardhat/console.sol";
 
 contract PoolMaster is Ownable {
     using SafeERC20 for IERC20;
@@ -15,9 +16,9 @@ contract PoolMaster is Ownable {
     uint256 public battlingPhaseDuration = 24 * 60 * 60; // 24 Hours
 
     uint256 public loserTokensPercent = 1250; // 12.50 %
-    uint256 public winnerTokensPercent = 1000; // 10.00 %
-    uint256 public burnedTokensPercent = 50; // 0.50%
-    uint256 public pool3TokensPercent = 200; // 2.00%
+    uint256 public winnerTokensPercent = 8000; // 10.00 % : 10/12.5 = 80%
+    uint256 public burnedTokensPercent = 400; // 0.50% : 0.5/12.5 = 4%
+    uint256 public pool3TokensPercent = 1600; // 2.00% : 2/12.5 = 16%
     
     uint256 public unstakeFee = 200; // 2.00%
     uint256 public usdcStakeFee = 100; // 1.00%
@@ -63,7 +64,7 @@ contract PoolMaster is Ownable {
         uint256 _stakeAmount = msg.value;
         if (_usdcAmount > 0) {
             _stakeAmount = (_usdcAmount * (10_000 - usdcStakeFee)) / 10_000;
-            usdc.safeTransferFrom(msg.sender, address(this), _stakeAmount);
+            usdc.safeTransferFrom(msg.sender, address(this), _usdcAmount);
         }
         require(_stakeAmount > 0, "Must stake more than 0 tokens");
 
@@ -122,6 +123,11 @@ contract PoolMaster is Ownable {
 
             uint256 _userLoseAmount = (_staker.amount * loserTokensPercent) / 10_000;
             uint256 _userKeepAmount = _staker.amount - _userLoseAmount;
+
+            console.log("_userLoseAmount");
+            console.log(_userLoseAmount);
+            console.log("_userKeepAmount");
+            console.log(_userKeepAmount);
 
             if (_staker.isUsdc) {
                 usdc.transfer(_staker.stakerAddress, _userKeepAmount);

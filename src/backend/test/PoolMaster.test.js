@@ -20,7 +20,7 @@ describe("PoolMaster", async function() {
         await poolMaster.connect(deployer).setUsdcAddress(usdcAddress);
     });
 
-    describe("Game", function() {
+    describe("Basic functions", function() {
         it("Should stake", async function() {
             expect(await poolMaster.usdc()).to.equal(usdc.address);
 
@@ -52,6 +52,48 @@ describe("PoolMaster", async function() {
             
             await expect(poolMaster.connect(addr1).endEpoch(0)).to.be.revertedWith("Ownable: caller is not the owner");
             await poolMaster.connect(deployer).endEpoch(0);
+        })
+    })
+    
+    describe("Rules", function() {
+        it("Should reward winners", async function() {
+            await poolMaster.connect(deployer).startEpoch(deployer.address, addr1.address);
+
+            await usdc.connect(deployer).transfer(addr2.address, toWei(3_000));
+            let balanceAddr2Start = await usdc.balanceOf(addr2.address)
+            console.log("balanceAddr2Start", balanceAddr2Start)
+            
+            await usdc.connect(deployer).approve(poolMaster.address, toWei(1_000));
+            await poolMaster.connect(deployer).stake(0, toWei(1_000));
+            await poolMaster.connect(addr1).stake(0, 0, {value: toWei(1_000)});
+
+            await usdc.connect(addr2).approve(poolMaster.address, toWei(1_000));
+            await poolMaster.connect(addr2).stake(1, toWei(1_000));
+            await poolMaster.connect(addr3).stake(1, 0, {value: toWei(1_000)});
+            
+            let balanceAddr2AfterStake = toWei(fromWei(balanceAddr2Start) - 1_000)
+            console.log("balanceAddr2AfterStake", balanceAddr2AfterStake)
+            expect(await usdc.balanceOf(addr2.address)).to.equal(balanceAddr2AfterStake);
+            
+            // let balanceDeployerBefore = await usdc.balanceOf(deployer.address)
+            // let balanceAddr2Before = await addr2.balanceOf(deployer.address)
+            // console.log("balanceAddr2Before", balanceAddr2Before)
+
+            // await poolMaster.connect(deployer).endEpoch(0);
+            
+            // let balanceAddr2After = toWei(fromWei(balanceAddr2Before) + 1_000 - 1_000 * 0.125)
+            // console.log("balanceAddr2After", balanceAddr2After)
+            // expect(await addr2.getBalance()).to.equal(balanceAddr2After);
+
+            // let balanceAddr3After = toWei(fromWei(balanceAddr3Before) + 1_000 - 1_000 * 0.125)
+            // console.log("balanceAddr3After", balanceAddr3After)
+            // expect(await addr3.getBalance()).to.equal(balanceAddr3After);
+
+            // let balanceDeployerAfter = balanceDeployerBefore + toWei(1_000) * 0.99 + toWei(1_000) / 10
+            // expect(await usdc.balanceOf(deployer.address)).to.equal(balanceDeployerAfter);
+        })
+        it("Should register usdc stake fee", async function() {
+            // todo
         })
     })
 })
