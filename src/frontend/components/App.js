@@ -5,6 +5,7 @@ import {
 } from "react-router-dom"
 import './App.css';
 import Navbar from './Navbar'
+import Footer from './Footer'
 import Home from './Home'
 import Menu from './Menu'
 
@@ -28,6 +29,10 @@ function App() {
   isAlphaBonusWindowRef.current = isAlphaBonusWindow;
 
   const zeroPad = (num, places) => String(num).padStart(places, '0')
+
+  const web3Handler = () => {
+    console.log("web3Handler")
+  }
 
   const closePopup = () => {
     setPopup(0)
@@ -62,7 +67,9 @@ function App() {
     <BrowserRouter>
       <div className="App" id="wrapper">
         <div className="m-0 p-0 container-fluid">
-          ababababab
+          <Navbar web3Handler={web3Handler} />
+          <Home />
+          <Footer />
             
             
         </div>

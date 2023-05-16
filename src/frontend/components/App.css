@@ -25,6 +25,11 @@ html, body {
   font-family: montserratFont;
   text-align: center;
   /* background-color: #090212; */
+  overflow-x: hidden;
+  color: white;
+}
+body {
+  background-image: linear-gradient(to right, #558dc3, #be4947, #9ec640);
 }
 html {
   margin: 0px;
@@ -42,7 +47,43 @@ body {
   /* background-image: linear-gradient(#54096c, #37085d, #090212); */
 }
 
+.logoimage {
+  max-width: 400px;
+}
 
+.home {
+  margin-top: 5vh;
+}
+
+.cardPool{
+  min-height: 300px;
+  width: 250px;
+  color: white;
+  padding: 1rem;
+}
+
+.cardRow {
+  display: flex;
+  justify-content: center;
+  gap: 5rem;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0%;
+  left: 1%;
+  padding: 1rem;
+}
+
+.footerLogos{
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.footerIcon {
+  width: 40px;
+}
 
 
 
