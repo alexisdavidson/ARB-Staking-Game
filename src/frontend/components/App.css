@@ -22,7 +22,7 @@ html, body {
   /* height: 100%;
   margin: 0; */
   padding: 0;
-  font-family: montserratFont;
+  /* font-family: montserratFont; */
   text-align: center;
   /* background-color: #090212; */
   overflow-x: hidden;
@@ -49,6 +49,13 @@ body {
 
 .logoimage {
   max-width: 400px;
+}
+
+.connectButtonCol {
+  display: flex;
+  justify-content: end;
+  padding-right: 4rem;
+  align-items: center;
 }
 
 .home {
@@ -85,6 +92,14 @@ body {
   width: 40px;
 }
 
+.connectButton {
+  background-color: rgb(0, 0, 0, 0) !important;
+  border: 4px solid black !important;
+  color: black;
+  font-weight: bold;
+  text-transform: uppercase;
+  height: 3rem;
+}
 
 
 @media only screen and (max-width: 1199.98px){
