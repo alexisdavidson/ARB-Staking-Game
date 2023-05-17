@@ -64,6 +64,7 @@ contract PoolMaster is Ownable {
 
         uint256 _stakeAmount = _amount;
         if (_isUsdc) {
+            require(_poolId <= 1, "Invalid pool Id");
             _stakeAmount = (_amount * (10_000 - usdcStakeFee)) / 10_000;
             usdc.safeTransferFrom(msg.sender, address(this), _amount);
         } else {
@@ -211,8 +212,20 @@ contract PoolMaster is Ownable {
         return pools[_poolId].timestampStartEpoch;
     }
 
-    function getToken(uint256 _poolId) public view returns (address) {
-        return pools[_poolId].token;
+    function getStakedTokensForAddress(address _user) public view returns (uint256) {
+        return stakersMapping[_user].amount;
+    }
+
+    function getIsUsdcForAddress(address _user) public view returns (bool) {
+        return stakersMapping[_user].isUsdc;
+    }
+
+    function getPoolIdForAddress(address _user) public view returns (uint256) {
+        return stakersMapping[_user].poolId;
+    }
+
+    function getStakedTokens(uint256 _poolId, bool _isUsdc) public view returns (uint256) {
+        return _isUsdc ? pools[_poolId].usdcCount : pools[_poolId].tokenCount;
     }
 
     // SETTERS

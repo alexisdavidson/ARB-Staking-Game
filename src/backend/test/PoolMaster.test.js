@@ -93,22 +93,8 @@ describe("PoolMaster", async function() {
             let balanceAddr2After = toWei(fromWei(balanceAddr2AfterStake) + 1_000 * 0.99 - (1_000 * 0.99) * 0.125)
             console.log("balanceAddr2After", balanceAddr2After)
             expect(await usdc.balanceOf(addr2.address)).to.equal(balanceAddr2After);
-            
-            // let balanceDeployerBefore = await usdc.balanceOf(deployer.address)
-            // let balanceAddr2Before = await addr2.balanceOf(deployer.address)
-            // console.log("balanceAddr2Before", balanceAddr2Before)
-            
-            // let balanceAddr2After = toWei(fromWei(balanceAddr2Before) + 1_000 - 1_000 * 0.125)
-            // console.log("balanceAddr2After", balanceAddr2After)
-            // expect(await addr2.getBalance()).to.equal(balanceAddr2After);
-
-            // let balanceAddr3After = toWei(fromWei(balanceAddr3Before) + 1_000 - 1_000 * 0.125)
-            // console.log("balanceAddr3After", balanceAddr3After)
-            // expect(await addr3.getBalance()).to.equal(balanceAddr3After);
-
-            // let balanceDeployerAfter = balanceDeployerBefore + toWei(1_000) * 0.99 + toWei(1_000) / 10
-            // expect(await usdc.balanceOf(deployer.address)).to.equal(balanceDeployerAfter);
         })
+
         it("Should register usdc stake fee", async function() {
             await poolMaster.connect(deployer).startEpoch(deployer.address, addr1.address);
 
@@ -124,6 +110,10 @@ describe("PoolMaster", async function() {
             let balanceAddr2End = await usdc.balanceOf(deployer.address)
             expect(balanceAddr2End).to.equal(toWei(fromWei(balanceAddr2Bet) + 1_000 * 0.99));
             expect(await usdc.balanceOf(poolMaster.address)).to.equal(toWei(1_000 * 0.01));
+        })
+
+        it("Should give reward to pool3 participants", async function() {
+            // todo
         })
     })
 })
