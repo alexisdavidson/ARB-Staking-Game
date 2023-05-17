@@ -35,6 +35,7 @@ contract PoolMaster is Ownable {
 
     struct Pool {
         address token;
+        string symbol;
         address lastWinnerToken;
         uint256 tokenCount;
         uint256 usdcCount;
@@ -51,9 +52,9 @@ contract PoolMaster is Ownable {
     event MintSuccessful(address user, uint256 tokenId, bool isAlpha);
 
     constructor() {
-        pools.push(Pool(address(0), address(0), 0, 0));
-        pools.push(Pool(address(0), address(0), 0, 0));
-        pools.push(Pool(address(0), address(0), 0, 0));
+        pools.push(Pool(address(0), "", address(0), 0, 0));
+        pools.push(Pool(address(0), "", address(0), 0, 0));
+        pools.push(Pool(address(0), "", address(0), 0, 0));
     }
 
     function stake(uint256 _poolId, uint256 _amount, bool _isUsdc) public payable {
@@ -88,12 +89,15 @@ contract PoolMaster is Ownable {
         }
     }
 
-    function startEpoch(address _token1, address _token2) public onlyOwner {
+    function startEpoch(address _token1, address _token2, string calldata _symbol1, string calldata _symbol2) public onlyOwner {
         require(epochEnded, "Current epoch has not ended");
         epochEnded = false;
 
         pools[0].token = _token1;
         pools[1].token = _token2;
+
+        pools[0].symbol = _symbol1;
+        pools[1].symbol = _symbol2;
 
         pools[0].tokenCount = 0;
         pools[1].tokenCount = 0;
@@ -230,6 +234,18 @@ contract PoolMaster is Ownable {
 
     function getStakedTokens(uint256 _poolId, bool _isUsdc) public view returns (uint256) {
         return _isUsdc ? pools[_poolId].usdcCount : pools[_poolId].tokenCount;
+    }
+
+    function getLastWinner(uint256 _poolId) public view returns (address) {
+        return pools[_poolId].lastWinnerToken;
+    }
+
+    function getToken(uint256 _poolId) public view returns (address) {
+        return pools[_poolId].token;
+    }
+
+    function getSymbol(uint256 _poolId) public view returns (string memory) {
+        return pools[_poolId].symbol;
     }
 
     // SETTERS

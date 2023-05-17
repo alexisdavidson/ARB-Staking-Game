@@ -37,6 +37,7 @@ function App() {
   const [phase, setPhase] = useState(0)
   const [timestampStartEpoch, setTimestampStartEpoch] = useState(0)
   const [timeleft, setTimeleft] = useState(null)
+  const [pools, setPools] = useState([])
 
   const intervalRef = useRef();
   intervalRef.current = intervalVariable;
@@ -83,6 +84,31 @@ function App() {
     else timerDuration = parseInt(await poolMaster.battlingPhaseDuration())
 
     iniTimer(timestampStartEpoch, timerDuration)
+
+    loadPoolData(poolMaster)
+  }
+
+  const loadPoolData = async (poolMaster) => {
+    console.log("loadPoolData")
+    let poolsTemp = []
+    poolsTemp.push({
+      token: await poolMaster.getSymbol(0),
+      tokenCount: parseInt(await poolMaster.getStakedTokens(0, false)),
+      usdcCount: parseInt(await poolMaster.getStakedTokens(0, true)),
+      lastWinner: await poolMaster.getLastWinner(0)
+    })
+    poolsTemp.push({
+      token: await poolMaster.getSymbol(1),
+      tokenCount: parseInt(await poolMaster.getStakedTokens(1, false)),
+      usdcCount: parseInt(await poolMaster.getStakedTokens(1, true)),
+      lastWinner: await poolMaster.getLastWinner(1)
+    })
+    poolsTemp.push({
+      tokenCount: parseInt(await poolMaster.getStakedTokens(2, false)),
+      usdcCount: parseInt(await poolMaster.getStakedTokens(2, true)),
+    })
+
+    setPools(poolsTemp)
   }
 
   const iniTimer = (startTimestamp, duration) => {
@@ -132,7 +158,8 @@ function App() {
       <div className="App" id="wrapper">
         <div className="m-0 p-0 container-fluid">
           <Navbar web3Handler={web3Handler} account={account} />
-          <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}/>
+          <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}
+            pools={pools} />
           <Footer />
         </div>
         

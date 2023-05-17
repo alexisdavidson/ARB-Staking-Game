@@ -6,7 +6,7 @@ import {getTimeLeftString} from './TimeOperation'
 const fromWei = (num) => ethers.utils.formatEther(num)
 const toWei = (num) => ethers.utils.parseEther(num.toString())
 
-const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
+const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools}) => {
     const [showPlaceBetPopup, setShowPlaceBetPopup] = useState(false)
     const [chosenPool, setChosenPool] = useState(0)
     const [chosenAmount, setChosenAmount] = useState(100)
@@ -34,9 +34,15 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
         console.log("stake", chosenPool)
         let amount = toWei(chosenAmount)
         let isUsdc = chosenUsdc
+
+        setShowPlaceBetPopup(false)
         
-        if (parseInt(await token.allowance(account, poolMaster.address)) < amount) {
-            await(await token.approve(poolMaster.address, amount)).wait()
+        if (chosenUsdc) {
+            if (parseInt(await usdc.allowance(account, poolMaster.address)) < amount)
+                await(await usdc.approve(poolMaster.address, amount)).wait()
+        } else {
+            if (parseInt(await token.allowance(account, poolMaster.address)) < amount)
+                await(await token.approve(poolMaster.address, amount)).wait()
         }
 
         await poolMaster.stake(chosenPool, amount, isUsdc)
@@ -54,11 +60,20 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
                 <Card bg="dark" className="cardPool">
                     <Card.Body color="secondary">
                         <Card.Title>Pool 1</Card.Title>
-                        <Card.Text>
-                            ARB
-                            <br/>
-                            Staked Tokens: {pool1_tokenCount}
-                        </Card.Text>
+                            <div className="my-2 mt-4">
+                                {pools[0]?.token}
+                            </div>
+                            <div className="my-2">
+                                Staked Tokens: {pools[0]?.tokenCount}
+                            </div>
+                            <div className="my-2">
+                                Staked Usdc: {pools[0]?.usdcCount}
+                            </div>
+                            <div className="my-2">
+                                {pools[0]?.lastWinner != null && pools[1]?.lastWinner != "0x0000000000000000000000000000000000000000" ? (
+                                    <>Last Winner: {pools[0]?.lastWinner}</>
+                                ) : <></>}
+                            </div>
                     </Card.Body>
                     <Card.Footer>
                         <div className='d-grid'>
@@ -73,11 +88,20 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
                 <Card bg="dark" className="cardPool">
                     <Card.Body color="secondary">
                         <Card.Title>Pool 2</Card.Title>
-                        <Card.Text>
-                            ARB
-                            <br/>
-                            Price: 0.2eth
-                        </Card.Text>
+                        <div className="my-2 mt-4">
+                            {pools[1]?.token}
+                        </div>
+                        <div className="my-2">
+                            Staked Tokens: {pools[1]?.tokenCount}
+                        </div>
+                        <div className="my-2">
+                            Staked Usdc: {pools[1]?.usdcCount}
+                        </div>
+                        <div className="my-2">
+                            {pools[1]?.lastWinner != null && pools[1]?.lastWinner != "0x0000000000000000000000000000000000000000" ? (
+                                <>Last Winner: {pools[1]?.lastWinner}</>
+                            ) : <></>}
+                        </div>
                     </Card.Body>
                     <Card.Footer>
                         <div className='d-grid'>
@@ -92,11 +116,12 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
                 <Card bg="dark" className="cardPool">
                     <Card.Body color="secondary">
                         <Card.Title>Pool 3</Card.Title>
-                        <Card.Text>
-                            ARB
-                            <br/>
-                            Price: 0.2eth
-                        </Card.Text>
+                        <div className="my-2 mt-4">
+                            Staked Tokens: {pools[0]?.tokenCount}
+                        </div>
+                        <div className="my-2">
+                            Staked Usdc: {pools[0]?.usdcCount}
+                        </div>
                     </Card.Body>
                     <Card.Footer>
                         <div className='d-grid'>
