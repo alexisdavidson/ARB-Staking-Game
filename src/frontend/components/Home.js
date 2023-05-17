@@ -5,7 +5,35 @@ import { Image, Row, Col, Button, Form, Card } from 'react-bootstrap'
 const fromWei = (num) => ethers.utils.formatEther(num)
 const toWei = (num) => ethers.utils.parseEther(num.toString())
 
-const Home = ({setMenu, setMenuConnectWallet}) => {
+const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
+    const [pool1_tokenCount, setpool1_tokenCount] = useState(0)
+
+    const phaseIdToText = () => {
+        if (phase == 2)
+            return "Epoch Ended"
+        if (phase == 1)
+            return "Battling Phase"
+        return "Betting Phase"
+    }
+    
+    const stake = async (poolId) => {
+        console.log("stake", poolId)
+        let amount = toWei(100)
+        let isUsdc = false
+        
+        if (parseInt(await token.allowance(account, poolMaster.address)) < amount) {
+            await(await token.approve(poolMaster.address, amount)).wait()
+        }
+
+        await poolMaster.stake(poolId, amount, isUsdc)
+    }
+
+    useEffect(async () => {
+        if (poolMaster != null) {
+            setpool1_tokenCount(fromWei(await poolMaster.getStakedTokens(0, false)))
+        }
+    }, [poolMaster])
+
     return (
         <Row className="home">
             <Row className="cardRow">
@@ -15,12 +43,12 @@ const Home = ({setMenu, setMenuConnectWallet}) => {
                         <Card.Text>
                             ARB
                             <br/>
-                            Price: 0.2eth
+                            Staked Tokens: {pool1_tokenCount}
                         </Card.Text>
                     </Card.Body>
                     <Card.Footer>
                         <div className='d-grid'>
-                            <Button variant="success" size="lg" onClick={() => console.log("bet")}>
+                            <Button variant="success" size="lg" onClick={() => stake(0)}>
                                 Bet
                             </Button>
                         </div>
@@ -37,7 +65,7 @@ const Home = ({setMenu, setMenuConnectWallet}) => {
                     </Card.Body>
                     <Card.Footer>
                         <div className='d-grid'>
-                            <Button variant="success" size="lg" onClick={() => console.log("bet")}>
+                            <Button variant="success" size="lg" onClick={() => stake(1)}>
                                 Bet
                             </Button>
                         </div>
@@ -54,7 +82,7 @@ const Home = ({setMenu, setMenuConnectWallet}) => {
                     </Card.Body>
                     <Card.Footer>
                         <div className='d-grid'>
-                            <Button variant="success" size="lg" onClick={() => console.log("bet")}>
+                            <Button variant="success" size="lg" onClick={() => stake(2)}>
                                 Bet
                             </Button>
                         </div>
@@ -64,7 +92,10 @@ const Home = ({setMenu, setMenuConnectWallet}) => {
 
             <Row className="timeLeftRow mt-5">
                 <div>
-                    Time Left for current Epoch: 02:14:58:01
+                    Current phase: {phaseIdToText()}
+                </div>
+                <div>
+                    Time Left for current Epoch: 02:14:58:01 {timeleft}
                 </div>
             </Row>
         </Row>

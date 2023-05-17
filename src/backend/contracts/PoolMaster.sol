@@ -25,6 +25,7 @@ contract PoolMaster is Ownable {
     uint256 public usdcStakeFee = 100; // 1.00%
 
     bool public epochEnded = true;
+    uint256 public timestampStartEpoch;
 
     Pool[] private pools;
     mapping(address => Staker) private stakersMapping;
@@ -34,8 +35,7 @@ contract PoolMaster is Ownable {
 
     struct Pool {
         address token;
-        uint256 timestampStartEpoch;
-        address lastWinner;
+        address lastWinnerToken;
         uint256 tokenCount;
         uint256 usdcCount;
     }
@@ -51,13 +51,14 @@ contract PoolMaster is Ownable {
     event MintSuccessful(address user, uint256 tokenId, bool isAlpha);
 
     constructor() {
-        pools.push(Pool(address(0), 0, address(0), 0, 0));
-        pools.push(Pool(address(0), 0, address(0), 0, 0));
-        pools.push(Pool(address(0), 0, address(0), 0, 0));
+        pools.push(Pool(address(0), address(0), 0, 0));
+        pools.push(Pool(address(0), address(0), 0, 0));
+        pools.push(Pool(address(0), address(0), 0, 0));
     }
 
     function stake(uint256 _poolId, uint256 _amount, bool _isUsdc) public payable {
         require(!epochEnded, "Epoch not started yet");
+        require(getPhase() == 0, "Betting phase has ended.");
 
         require(_poolId <= 2, "Invalid pool Id");
         require(stakersMapping[msg.sender].stakerAddress == address(0), "User already staked for this epoch");
@@ -94,10 +95,6 @@ contract PoolMaster is Ownable {
         pools[0].token = _token1;
         pools[1].token = _token2;
 
-        pools[0].timestampStartEpoch = block.timestamp;
-        pools[1].timestampStartEpoch = block.timestamp;
-        pools[2].timestampStartEpoch = block.timestamp;
-
         pools[0].tokenCount = 0;
         pools[1].tokenCount = 0;
         pools[2].tokenCount = 0;
@@ -105,6 +102,8 @@ contract PoolMaster is Ownable {
         pools[0].usdcCount = 0;
         pools[1].usdcCount = 0;
         pools[2].usdcCount = 0;
+
+        timestampStartEpoch = block.timestamp;
     }
 
     // Der Pool, dessen token den anderen in absoluten % outperformt hat, gewinnt
@@ -116,8 +115,8 @@ contract PoolMaster is Ownable {
         uint256 _poolLoserLength = _poolLoserId == 0 ? stakersPool1.length : stakersPool2.length;
         uint256 _poolWinnerLength = _poolWinnerId == 0 ? stakersPool1.length : stakersPool2.length;
 
-        pools[_poolLoserId].lastWinner = address(0);
-        pools[_poolWinnerId].lastWinner = pools[_poolWinnerId].token;
+        pools[_poolLoserId].lastWinnerToken = address(0);
+        pools[_poolWinnerId].lastWinnerToken = pools[_poolWinnerId].token;
 
         uint256 _tokenLostAmount = 0;
         uint256 _usdcLostAmount = 0;
@@ -208,8 +207,13 @@ contract PoolMaster is Ownable {
 
     // GETTERS
 
-    function getTimestampStartEpoch(uint256 _poolId) public view returns (uint256) {
-        return pools[_poolId].timestampStartEpoch;
+    function getPhase() public view returns (uint256) {
+        uint256 _timeElapsed = block.timestamp - timestampStartEpoch;
+        if (_timeElapsed > battlingPhaseDuration || epochEnded)
+            return 2; // epoch ended
+        else if (_timeElapsed > bettingPhaseDuration)
+            return 1; // battling phase
+        return 0; // betting phase
     }
 
     function getStakedTokensForAddress(address _user) public view returns (uint256) {
@@ -269,6 +273,8 @@ contract PoolMaster is Ownable {
     function setUsdcStakeFee(uint256 _usdcStakeFee) public onlyOwner {
         usdcStakeFee = _usdcStakeFee;
     }
+
+    // OWNER FUNCTIONS
     
     function withdrawEth() external onlyOwner {
         payable(msg.sender).transfer(address(this).balance);

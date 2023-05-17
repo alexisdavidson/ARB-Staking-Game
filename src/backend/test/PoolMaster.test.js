@@ -115,5 +115,9 @@ describe("PoolMaster", async function() {
         it("Should give reward to pool3 participants", async function() {
             // todo
         })
+
+        it("Should bet only during betting phase", async function() {
+            // todo
+        })
     })
 })

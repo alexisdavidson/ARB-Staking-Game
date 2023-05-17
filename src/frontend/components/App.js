@@ -13,8 +13,15 @@ import { useState, useEffect, useRef } from 'react'
 import Spinner from 'react-bootstrap/Spinner';
 import { ethers } from 'ethers'
 
+import Erc20UsdcAbi from '../contractsData/Erc20Usdc.json'
+import Erc20UsdcAddress from '../contractsData/Erc20Usdc-address.json'
+import TokenAbi from '../contractsData/Token.json'
+import TokenAddress from '../contractsData/Token-address.json'
 import PoolMasterAbi from '../contractsData/PoolMaster.json'
 import PoolMasterAddress from '../contractsData/PoolMaster-address.json'
+
+const fromWei = (num) => ethers.utils.formatEther(num)
+const toWei = (num) => ethers.utils.parseEther(num.toString())
 
 
 function App() {
@@ -25,6 +32,10 @@ function App() {
   const [signer, setSigner] = useState(null)
   const [provider, setProvider] = useState({})
   const [poolMaster, setPoolMaster] = useState({})
+  const [token, setToken] = useState({})
+  const [usdc, setUsdc] = useState({})
+  const [phase, setPhase] = useState(0)
+  const [timestampStartEpoch, setTimestampStartEpoch] = useState(0)
 
   const intervalRef = useRef();
   intervalRef.current = intervalVariable;
@@ -36,6 +47,7 @@ function App() {
   const web3Handler = async () => {
     console.log("web3Handler")
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    console.log("account:", accounts[0])
     setAccount(accounts[0])
 
     await loadContracts(accounts[0])
@@ -48,8 +60,15 @@ function App() {
     const signer = providerTemp.getSigner()
 
     const poolMaster = new ethers.Contract(PoolMasterAddress.address, PoolMasterAbi.abi, signer)
-    setPoolMaster(poolMaster)
+    const token = new ethers.Contract(TokenAddress.address, TokenAbi.abi, signer)
+    const usdc = new ethers.Contract(Erc20UsdcAddress.address, Erc20UsdcAbi.abi, signer)
 
+    setPoolMaster(poolMaster)
+    setToken(token)
+    setUsdc(usdc)
+
+    setPhase(await poolMaster.getPhase())
+    setTimestampStartEpoch(parseInt(await poolMaster.timestampStartEpoch()))
 
     console.log("poolMaster", poolMaster.address)
   }
@@ -73,11 +92,9 @@ function App() {
     <BrowserRouter>
       <div className="App" id="wrapper">
         <div className="m-0 p-0 container-fluid">
-          <Navbar web3Handler={web3Handler} />
-          <Home />
+          <Navbar web3Handler={web3Handler} account={account} />
+          <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timestampStartEpoch}/>
           <Footer />
-            
-            
         </div>
         
       </div>

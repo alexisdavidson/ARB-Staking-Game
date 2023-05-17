@@ -32,19 +32,12 @@ module.exports = {
       chainId: 31337,
       allowUnlimitedContractSize: true
      },
-     goerli: {
-       url: process.env.REACT_APP_API_URL_GOERLI_INFURA,
-       accounts: ['0x' + process.env.REACT_APP_PRIVATE_KEY_GOERLI],
-       allowUnlimitedContractSize: true,
-       gas: 3100000,
-       gasPrice: 55000000000,
-     },
      sepolia: {
        url: process.env.REACT_APP_API_URL_SEPOLIA_INFURA,
-       accounts: ['0x' + process.env.REACT_APP_PRIVATE_KEY_GOERLI],
+       accounts: ['0x' + process.env.REACT_APP_PRIVATE_KEY_TESTNETS],
        allowUnlimitedContractSize: true,
-       gas: 3100000,
-       gasPrice: 55000000000,
+       gas: 2100000,
+       gasPrice: 45000000000,
      },
      arbitrumGoerli: {
        url: "https://goerli-rollup.arbitrum.io/rpc",

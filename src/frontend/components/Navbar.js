@@ -3,8 +3,8 @@ import { Row, Col, Button, Image } from 'react-bootstrap'
 import { getTimeLeftString } from './TimeOperation'
 import logo from './assets/logo.png'
 
-const Navbar = ({ menu, setMobileMenu, setMenu, setMenuConnectWallet, web3Handler}) => {
-    
+const Navbar = ({ account, menu, setMobileMenu, setMenu, setMenuConnectWallet, web3Handler}) => {
+
     return (
         <Row className="navigation">
             {/* MOBILE */}
@@ -27,7 +27,11 @@ const Navbar = ({ menu, setMobileMenu, setMenu, setMenuConnectWallet, web3Handle
                     <Image src={logo} className="logoimage" />
                 </Col>
                 <Col className="col-4 connectButtonCol">
-                    <Button className="connectButton" onClick={web3Handler}>Connect Wallet</Button>
+                    {account ? (
+                        <Button className="connectButton" >{account.slice(0, 4) + '...' + account.slice(38, 42)}</Button>
+                    ) : (
+                        <Button className="connectButton" onClick={web3Handler}>Connect Wallet</Button>
+                    )}
                 </Col>
             </div>
         </Row>
