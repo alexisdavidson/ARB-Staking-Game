@@ -10,6 +10,7 @@ import "hardhat/console.sol";
 
 contract PoolMaster is Ownable {
     using SafeERC20 for IERC20;
+    IERC20 public token;
     IERC20 public usdc;
     
     uint256 public bettingPhaseDuration = 8 * 60 * 60; // 8 Hours
@@ -35,7 +36,7 @@ contract PoolMaster is Ownable {
         address token;
         uint256 timestampStartEpoch;
         address lastWinner;
-        uint256 nativeCount;
+        uint256 tokenCount;
         uint256 usdcCount;
     }
 
@@ -55,24 +56,26 @@ contract PoolMaster is Ownable {
         pools.push(Pool(address(0), 0, address(0), 0, 0));
     }
 
-    function stake(uint256 _poolId, uint256 _usdcAmount) public payable {
+    function stake(uint256 _poolId, uint256 _amount, bool _isUsdc) public payable {
         require(!epochEnded, "Epoch not started yet");
 
         require(_poolId <= 2, "Invalid pool Id");
         require(stakersMapping[msg.sender].stakerAddress == address(0), "User already staked for this epoch");
 
-        uint256 _stakeAmount = msg.value;
-        if (_usdcAmount > 0) {
-            _stakeAmount = (_usdcAmount * (10_000 - usdcStakeFee)) / 10_000;
-            usdc.safeTransferFrom(msg.sender, address(this), _usdcAmount);
+        uint256 _stakeAmount = _amount;
+        if (_isUsdc) {
+            _stakeAmount = (_amount * (10_000 - usdcStakeFee)) / 10_000;
+            usdc.safeTransferFrom(msg.sender, address(this), _amount);
+        } else {
+            token.safeTransferFrom(msg.sender, address(this), _amount);
         }
         require(_stakeAmount > 0, "Must stake more than 0 tokens");
 
-        Staker memory _staker = Staker(_poolId, _stakeAmount, _usdcAmount > 0, msg.sender);
+        Staker memory _staker = Staker(_poolId, _stakeAmount, _isUsdc, msg.sender);
         
         stakersMapping[msg.sender] = _staker;
-        pools[_poolId].nativeCount += _usdcAmount > 0 ? 0 : 1;
-        pools[_poolId].usdcCount += _usdcAmount > 0 ? 1 : 0;
+        pools[_poolId].tokenCount += _isUsdc ? 0 : 1;
+        pools[_poolId].usdcCount += _isUsdc ? 1 : 0;
 
         if (_poolId == 0) {
             stakersPool1.push(_staker);
@@ -94,9 +97,9 @@ contract PoolMaster is Ownable {
         pools[1].timestampStartEpoch = block.timestamp;
         pools[2].timestampStartEpoch = block.timestamp;
 
-        pools[0].nativeCount = 0;
-        pools[1].nativeCount = 0;
-        pools[2].nativeCount = 0;
+        pools[0].tokenCount = 0;
+        pools[1].tokenCount = 0;
+        pools[2].tokenCount = 0;
 
         pools[0].usdcCount = 0;
         pools[1].usdcCount = 0;
@@ -115,7 +118,7 @@ contract PoolMaster is Ownable {
         pools[_poolLoserId].lastWinner = address(0);
         pools[_poolWinnerId].lastWinner = pools[_poolWinnerId].token;
 
-        uint256 _nativeLostAmount = 0;
+        uint256 _tokenLostAmount = 0;
         uint256 _usdcLostAmount = 0;
         // Verlierer kriegen 12.5% ihrer gestakten Tokens abgezogen
         for(uint256 i = 0; i < _poolLoserLength;) {
@@ -133,8 +136,8 @@ contract PoolMaster is Ownable {
                 usdc.transfer(_staker.stakerAddress, _userKeepAmount);
                 _usdcLostAmount += _userLoseAmount;
             } else {
-                payable(_staker.stakerAddress).transfer(_userKeepAmount);
-                _nativeLostAmount += _userLoseAmount;
+                token.transfer(_staker.stakerAddress, _userKeepAmount);
+                _tokenLostAmount += _userLoseAmount;
             }
 
             stakersMapping[_staker.stakerAddress] = Staker(0, 0, false, address(0));
@@ -142,12 +145,12 @@ contract PoolMaster is Ownable {
         }
 
         // 10% davon wird an die Gewinner aufgeteilt
-        uint256 _nativeWinningTokenPool = (_nativeLostAmount * winnerTokensPercent) / 10_000;
+        uint256 _tokenWinningTokenPool = (_tokenLostAmount * winnerTokensPercent) / 10_000;
         uint256 _usdcWinningTokenPool = (_usdcLostAmount * winnerTokensPercent) / 10_000;
-        uint256 _nativeUserWinAmount = 0;
+        uint256 _tokenUserWinAmount = 0;
         uint256 _usdcUserWinAmount = 0;
-        if (pools[_poolWinnerId].nativeCount > 0) {
-            _nativeUserWinAmount = _nativeWinningTokenPool / pools[_poolWinnerId].nativeCount;
+        if (pools[_poolWinnerId].tokenCount > 0) {
+            _tokenUserWinAmount = _tokenWinningTokenPool / pools[_poolWinnerId].tokenCount;
         }
         if (pools[_poolWinnerId].usdcCount > 0) {
             _usdcUserWinAmount = _usdcWinningTokenPool / pools[_poolWinnerId].usdcCount;
@@ -158,7 +161,7 @@ contract PoolMaster is Ownable {
             if (_staker.isUsdc) {
                 usdc.transfer(_staker.stakerAddress, _staker.amount + _usdcUserWinAmount);
             } else {
-                payable(_staker.stakerAddress).transfer(_staker.amount + _nativeUserWinAmount);
+                token.transfer(_staker.stakerAddress, _staker.amount + _tokenUserWinAmount);
             }
 
             stakersMapping[_staker.stakerAddress] = Staker(0, 0, false, address(0));
@@ -166,19 +169,19 @@ contract PoolMaster is Ownable {
         }
 
         // 0.5% geburned
-        uint256 _nativeBurnAmount = (_nativeLostAmount * burnedTokensPercent) / 10_000;
+        uint256 _tokenBurnAmount = (_tokenLostAmount * burnedTokensPercent) / 10_000;
         uint256 _usdcBurnAmount = (_usdcLostAmount * burnedTokensPercent) / 10_000;
         usdc.transfer(0x000000000000000000000000000000000000dEaD, _usdcBurnAmount);
-        payable(address(0)).transfer(_nativeBurnAmount);
+        token.transfer(0x000000000000000000000000000000000000dEaD, _tokenBurnAmount);
 
         // die restlichen 2% geht an Pool3 staker
         uint256 _pool3Length = stakersPool3.length;
-        uint256 _nativePool3Amount = (_nativeLostAmount * pool3TokensPercent) / 10_000;
+        uint256 _tokenPool3Amount = (_tokenLostAmount * pool3TokensPercent) / 10_000;
         uint256 _usdcPool3Amount = (_usdcLostAmount * pool3TokensPercent) / 10_000;
-        uint256 _nativeUserPool3Amount = 0;
+        uint256 _tokenUserPool3Amount = 0;
         uint256 _usdcUserPool3Amount = 0;
-        if (pools[2].nativeCount > 0) {
-            _nativeUserPool3Amount = _nativePool3Amount / pools[2].nativeCount;
+        if (pools[2].tokenCount > 0) {
+            _tokenUserPool3Amount = _tokenPool3Amount / pools[2].tokenCount;
         }
         if (pools[2].usdcCount > 0) {
             _usdcUserPool3Amount = _usdcPool3Amount / pools[2].usdcCount;
@@ -190,7 +193,7 @@ contract PoolMaster is Ownable {
             if (_staker.isUsdc) {
                 usdc.transfer(_staker.stakerAddress, _staker.amount + _usdcUserPool3Amount);
             } else {
-                payable(_staker.stakerAddress).transfer(_staker.amount + _nativeUserPool3Amount);
+                token.transfer(_staker.stakerAddress, _staker.amount + _tokenUserPool3Amount);
             }
 
             stakersMapping[_staker.stakerAddress] = Staker(0, 0, false, address(0));
@@ -242,6 +245,10 @@ contract PoolMaster is Ownable {
         usdc = IERC20(_usdcAddress);
     }
 
+    function setTokenAddress(address _tokenAddress) public onlyOwner {
+        token = IERC20(_tokenAddress);
+    }
+
     function setUnstakeFee(uint256 _unstakeFee) public onlyOwner {
         unstakeFee = _unstakeFee;
     }
@@ -252,6 +259,10 @@ contract PoolMaster is Ownable {
     
     function withdrawEth() external onlyOwner {
         payable(msg.sender).transfer(address(this).balance);
+    }
+    
+    function withdrawToken() external onlyOwner {
+        token.transfer(msg.sender, usdc.balanceOf(address(this)));
     }
     
     function withdrawUsdc() external onlyOwner {

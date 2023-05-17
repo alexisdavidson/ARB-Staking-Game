@@ -5,50 +5,61 @@ const toWei = (num) => ethers.utils.parseEther(num.toString())
 const fromWei = (num) => parseInt(ethers.utils.formatEther(num))
 
 describe("PoolMaster", async function() {
-    let deployer, addr1, addr2, poolMaster, udsc
+    let deployer, addr1, addr2, poolMaster, udsc, token
 
     beforeEach(async function() {
         const PoolMaster = await ethers.getContractFactory("PoolMaster");
         const Usdc = await ethers.getContractFactory("Erc20Usdc");
+        const Token = await ethers.getContractFactory("Token");
 
         [deployer, addr1, addr2, addr3] = await ethers.getSigners();
 
         usdc = await Usdc.deploy();
+        token = await Token.deploy();
         const usdcAddress = usdc.address
+        const tokenAddress = token.address
         poolMaster = await PoolMaster.deploy();
         
+        await poolMaster.connect(deployer).setTokenAddress(tokenAddress);
         await poolMaster.connect(deployer).setUsdcAddress(usdcAddress);
+        
+        await token.connect(deployer).transfer(addr1.address, 10_000);
+        await token.connect(deployer).transfer(addr2.address, 10_000);
+        await token.connect(deployer).transfer(addr3.address, 10_000);
     });
 
     describe("Basic functions", function() {
         it("Should stake", async function() {
             expect(await poolMaster.usdc()).to.equal(usdc.address);
 
-            await expect(poolMaster.connect(deployer).stake(0, 10_000)).to.be.revertedWith("Epoch not started yet");
+            await expect(poolMaster.connect(deployer).stake(0, 10_000, true)).to.be.revertedWith("Epoch not started yet");
             await poolMaster.connect(deployer).startEpoch(deployer.address, addr1.address);
 
-            await expect(poolMaster.connect(deployer).stake(3, 0)).to.be.revertedWith("Invalid pool Id");
-            await expect(poolMaster.connect(deployer).stake(0, 0)).to.be.revertedWith("Must stake more than 0 tokens");
-            await expect(poolMaster.connect(deployer).stake(0, 10_000)).to.be.revertedWith("ERC20: insufficient allowance");
+            await expect(poolMaster.connect(deployer).stake(3, 0, false)).to.be.revertedWith("Invalid pool Id");
+            await expect(poolMaster.connect(deployer).stake(0, 0, false)).to.be.revertedWith("Must stake more than 0 tokens");
+            await expect(poolMaster.connect(deployer).stake(0, 10_000, true)).to.be.revertedWith("ERC20: insufficient allowance");
             await usdc.connect(deployer).approve(poolMaster.address, 10_000);
-            await poolMaster.connect(deployer).stake(0, 10_000);
-            await expect(poolMaster.connect(deployer).stake(0, 10_000)).to.be.revertedWith("User already staked for this epoch");
+            await poolMaster.connect(deployer).stake(0, 10_000, true);
+            await expect(poolMaster.connect(deployer).stake(0, 10_000, true)).to.be.revertedWith("User already staked for this epoch");
 
-            await expect(poolMaster.connect(addr1).stake(0, 10_000)).to.be.revertedWith("ERC20: insufficient allowance");
+            await expect(poolMaster.connect(addr1).stake(0, 10_000, true)).to.be.revertedWith("ERC20: insufficient allowance");
             await usdc.connect(addr1).approve(poolMaster.address, 10_000);
-            await expect(poolMaster.connect(addr1).stake(0, 10_000)).to.be.revertedWith("ERC20: transfer amount exceeds balance");
-            await poolMaster.connect(addr1).stake(0, 0, {value: 10_000});
-            await expect(poolMaster.connect(addr1).stake(1, 0, {value: 10_000})).to.be.revertedWith("User already staked for this epoch");
+            await expect(poolMaster.connect(addr1).stake(0, 10_000, true)).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+            
+            await expect(poolMaster.connect(addr1).stake(0, 10_000, false)).to.be.revertedWith("ERC20: insufficient allowance");
+            await token.connect(addr1).approve(poolMaster.address, 10_000);
+            await poolMaster.connect(addr1).stake(0, 10_000, false);
+            await expect(poolMaster.connect(addr1).stake(1, 10_000, false)).to.be.revertedWith("User already staked for this epoch");
         })
         it("Should start and end epoch", async function() {
             expect(await poolMaster.epochEnded()).to.equal(true);
-            await expect(poolMaster.connect(deployer).stake(0, 10_000)).to.be.revertedWith("Epoch not started yet");
+            await expect(poolMaster.connect(deployer).stake(0, 10_000, true)).to.be.revertedWith("Epoch not started yet");
             await expect(poolMaster.connect(addr1).startEpoch(deployer.address, addr1.address)).to.be.revertedWith("Ownable: caller is not the owner");
             await poolMaster.connect(deployer).startEpoch(deployer.address, addr1.address);
             expect(await poolMaster.epochEnded()).to.equal(false);
             
             await usdc.connect(deployer).approve(poolMaster.address, 10_000);
-            await poolMaster.connect(deployer).stake(0, 10_000);
+            await poolMaster.connect(deployer).stake(0, 10_000, true);
             
             await expect(poolMaster.connect(addr1).endEpoch(0)).to.be.revertedWith("Ownable: caller is not the owner");
             await poolMaster.connect(deployer).endEpoch(0);
@@ -64,12 +75,14 @@ describe("PoolMaster", async function() {
             console.log("balanceAddr2Start", balanceAddr2Start)
             
             await usdc.connect(deployer).approve(poolMaster.address, toWei(1_000));
-            await poolMaster.connect(deployer).stake(0, toWei(1_000));
-            await poolMaster.connect(addr1).stake(0, 0, {value: toWei(1_000)});
+            await poolMaster.connect(deployer).stake(0, toWei(1_000), true);
+            await token.connect(addr1).approve(poolMaster.address, 1_000);
+            await poolMaster.connect(addr1).stake(0, 1_000, false);
 
             await usdc.connect(addr2).approve(poolMaster.address, toWei(1_000));
-            await poolMaster.connect(addr2).stake(1, toWei(1_000));
-            await poolMaster.connect(addr3).stake(1, 0, {value: toWei(1_000)});
+            await poolMaster.connect(addr2).stake(1, toWei(1_000), true);
+            await token.connect(addr3).approve(poolMaster.address, 1_000);
+            await poolMaster.connect(addr3).stake(1, 1_000, false);
             
             let balanceAddr2AfterStake = toWei(fromWei(balanceAddr2Start) - 1_000)
             console.log("balanceAddr2AfterStake", balanceAddr2AfterStake)
