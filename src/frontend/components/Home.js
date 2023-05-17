@@ -7,6 +7,10 @@ const fromWei = (num) => ethers.utils.formatEther(num)
 const toWei = (num) => ethers.utils.parseEther(num.toString())
 
 const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
+    const [showPlaceBetPopup, setShowPlaceBetPopup] = useState(false)
+    const [chosenPool, setChosenPool] = useState(0)
+    const [chosenAmount, setChosenAmount] = useState(100)
+    const [chosenUsdc, setchosenUsdc] = useState(false)
     const [pool1_tokenCount, setpool1_tokenCount] = useState(0)
 
     const phaseIdToText = () => {
@@ -16,17 +20,22 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
             return "Battling Phase"
         return "Betting Phase"
     }
+
+    const clickBet = (poolId) => {
+        setChosenPool(poolId)
+        setShowPlaceBetPopup(true)
+    }
     
-    const stake = async (poolId) => {
-        console.log("stake", poolId)
-        let amount = toWei(100)
-        let isUsdc = false
+    const stake = async () => {
+        console.log("stake", chosenPool)
+        let amount = toWei(chosenAmount)
+        let isUsdc = chosenUsdc
         
         if (parseInt(await token.allowance(account, poolMaster.address)) < amount) {
             await(await token.approve(poolMaster.address, amount)).wait()
         }
 
-        await poolMaster.stake(poolId, amount, isUsdc)
+        await poolMaster.stake(chosenPool, amount, isUsdc)
     }
 
     useEffect(async () => {
@@ -50,7 +59,7 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
                     <Card.Footer>
                         <div className='d-grid'>
                             {phase == 0 ? (
-                                <Button variant="success" size="lg" onClick={() => stake(0)}>
+                                <Button variant="success" size="lg" onClick={() => clickBet(0)}>
                                     Bet
                                 </Button>
                             ) : ( <></> )}
@@ -69,7 +78,7 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
                     <Card.Footer>
                         <div className='d-grid'>
                             {phase == 0 ? (
-                                <Button variant="success" size="lg" onClick={() => stake(1)}>
+                                <Button variant="success" size="lg" onClick={() => clickBet(1)}>
                                     Bet
                                 </Button>
                             ) : ( <></> )}
@@ -88,7 +97,7 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
                     <Card.Footer>
                         <div className='d-grid'>
                             {phase == 0 ? (
-                                <Button variant="success" size="lg" onClick={() => stake(2)}>
+                                <Button variant="success" size="lg" onClick={() => clickBet(2)}>
                                     Bet
                                 </Button>
                             ) : ( <></> )}
@@ -109,6 +118,29 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
                     ) : ( <></> )}
                 </div>
             </Row>
+            {showPlaceBetPopup ? (
+                <>
+                    <div className="placeBetPopupBg" onClick={() => setShowPlaceBetPopup(false)}>
+                    </div>
+                    <div className="placeBetPopup">
+                        <h1>Place a Bet</h1>
+                        <div className="my-3">
+                            USDC or $ATLAS
+                        </div>
+                        <div className="my-3">
+                            Amount: 100
+                        </div>
+                        <div className="my-3">
+                            <Button className="mx-2" variant="warning" size="lg" onClick={() => setShowPlaceBetPopup(false)}>
+                                Cancel 
+                            </Button>
+                            <Button className="mx-2" variant="success" size="lg" onClick={() => stake()}>
+                                Place Bet
+                            </Button>
+                        </div>
+                    </div>
+                </>
+            ) : (<></>)}
         </Row>
     );
 }
