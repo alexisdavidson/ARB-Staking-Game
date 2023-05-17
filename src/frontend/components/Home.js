@@ -25,6 +25,10 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
         setChosenPool(poolId)
         setShowPlaceBetPopup(true)
     }
+
+    const toggleTokenSwitch = () => {
+        setchosenUsdc(!chosenUsdc)
+    }
     
     const stake = async () => {
         console.log("stake", chosenPool)
@@ -125,12 +129,20 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
                     <div className="placeBetPopup">
                         <h1>Place a Bet</h1>
                         <div className="my-3">
-                            USDC or $ATLAS
+                            <Form className="switchCurrency">
+                                <Form.Check className="switchCurrency"
+                                    type="switch"
+                                    id="custom-switch"
+                                    label={chosenUsdc ? "USDC" : "$ATLAS"}
+                                    onClick={toggleTokenSwitch}
+                                    defaultChecked={!chosenUsdc}
+                                />
+                            </Form>
                         </div>
                         <div className="my-3">
                             Amount: 100
                         </div>
-                        <div className="my-3">
+                        <div className="my-5">
                             <Button className="mx-2" variant="warning" size="lg" onClick={() => setShowPlaceBetPopup(false)}>
                                 Cancel 
                             </Button>
