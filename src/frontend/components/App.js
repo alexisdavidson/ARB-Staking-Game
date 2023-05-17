@@ -31,11 +31,12 @@ function App() {
   const [intervalVariable, setIntervalVariable] = useState(null)
   const [signer, setSigner] = useState(null)
   const [provider, setProvider] = useState({})
-  const [poolMaster, setPoolMaster] = useState({})
+  const [poolMaster, setPoolMaster] = useState(null)
   const [token, setToken] = useState({})
   const [usdc, setUsdc] = useState({})
   const [phase, setPhase] = useState(0)
   const [timestampStartEpoch, setTimestampStartEpoch] = useState(0)
+  const [timeleft, setTimeleft] = useState(null)
 
   const intervalRef = useRef();
   intervalRef.current = intervalVariable;
@@ -67,11 +68,49 @@ function App() {
     setToken(token)
     setUsdc(usdc)
 
-    setPhase(await poolMaster.getPhase())
-    setTimestampStartEpoch(parseInt(await poolMaster.timestampStartEpoch()))
+    let phase = await poolMaster.getPhase()
+    setPhase(phase)
+
+    let timestampStartEpoch = parseInt(await poolMaster.timestampStartEpoch())
+    console.log("timestampStartEpoch", timestampStartEpoch)
+    setTimestampStartEpoch(timestampStartEpoch)
 
     console.log("poolMaster", poolMaster.address)
+    
+    let timerDuration = 0
+    if (phase == 0)
+      timerDuration = parseInt(await poolMaster.bettingPhaseDuration())
+    else timerDuration = parseInt(await poolMaster.battlingPhaseDuration())
+
+    iniTimer(timestampStartEpoch, timerDuration)
   }
+
+  const iniTimer = (startTimestamp, duration) => {
+    if (startTimestamp == 0) {
+      setTimeleft(0)
+      return
+    }
+    const testOffset = 0 * 24 * 60 * 1000 // Set to 0 for live version
+
+    const timestampEnd = (startTimestamp + duration) * 1000
+    let timeleftTemp = timestampEnd - Date.now() - testOffset
+
+    let dateNow = Date.now() + testOffset
+    setTimeleft(timeleftTemp)
+    console.log("timeleftTemp: " + timeleftTemp)
+    console.log("Date.now(): " + dateNow)
+    console.log("Set interval")
+    setIntervalVariable(setInterval(() => {
+      dateNow = Date.now() + testOffset
+      setTimeleft(timestampEnd - dateNow)
+    }, 1000))
+  }
+
+  useEffect(async () => {
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, [])
 
   const closePopup = () => {
     setPopup(0)
@@ -93,7 +132,7 @@ function App() {
       <div className="App" id="wrapper">
         <div className="m-0 p-0 container-fluid">
           <Navbar web3Handler={web3Handler} account={account} />
-          <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timestampStartEpoch}/>
+          <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}/>
           <Footer />
         </div>
         

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ethers } from "ethers"
 import { Image, Row, Col, Button, Form, Card } from 'react-bootstrap'
+import {getTimeLeftString} from './TimeOperation'
 
 const fromWei = (num) => ethers.utils.formatEther(num)
 const toWei = (num) => ethers.utils.parseEther(num.toString())
@@ -48,9 +49,11 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
                     </Card.Body>
                     <Card.Footer>
                         <div className='d-grid'>
-                            <Button variant="success" size="lg" onClick={() => stake(0)}>
-                                Bet
-                            </Button>
+                            {phase == 0 ? (
+                                <Button variant="success" size="lg" onClick={() => stake(0)}>
+                                    Bet
+                                </Button>
+                            ) : ( <></> )}
                         </div>
                     </Card.Footer>
                 </Card>
@@ -65,9 +68,11 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
                     </Card.Body>
                     <Card.Footer>
                         <div className='d-grid'>
-                            <Button variant="success" size="lg" onClick={() => stake(1)}>
-                                Bet
-                            </Button>
+                            {phase == 0 ? (
+                                <Button variant="success" size="lg" onClick={() => stake(1)}>
+                                    Bet
+                                </Button>
+                            ) : ( <></> )}
                         </div>
                     </Card.Footer>
                 </Card>
@@ -82,9 +87,11 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
                     </Card.Body>
                     <Card.Footer>
                         <div className='d-grid'>
-                            <Button variant="success" size="lg" onClick={() => stake(2)}>
-                                Bet
-                            </Button>
+                            {phase == 0 ? (
+                                <Button variant="success" size="lg" onClick={() => stake(2)}>
+                                    Bet
+                                </Button>
+                            ) : ( <></> )}
                         </div>
                     </Card.Footer>
                 </Card>
@@ -95,7 +102,11 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft}) => {
                     Current phase: {phaseIdToText()}
                 </div>
                 <div>
-                    Time Left for current Epoch: 02:14:58:01 {timeleft}
+                    {phase != 2 ? (
+                        <>
+                            {getTimeLeftString(timeleft)}
+                        </>
+                    ) : ( <></> )}
                 </div>
             </Row>
         </Row>
