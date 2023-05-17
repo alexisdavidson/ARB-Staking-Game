@@ -110,7 +110,20 @@ describe("PoolMaster", async function() {
             // expect(await usdc.balanceOf(deployer.address)).to.equal(balanceDeployerAfter);
         })
         it("Should register usdc stake fee", async function() {
-            // todo
+            await poolMaster.connect(deployer).startEpoch(deployer.address, addr1.address);
+
+            let balanceAddr2Start = await usdc.balanceOf(deployer.address)
+
+            await usdc.connect(deployer).approve(poolMaster.address, toWei(1_000));
+            await poolMaster.connect(deployer).stake(0, toWei(1_000), true);
+            
+            let balanceAddr2Bet = await usdc.balanceOf(deployer.address)
+            expect(balanceAddr2Bet).to.equal(toWei(fromWei(balanceAddr2Start) - 1_000));
+            
+            await poolMaster.connect(deployer).endEpoch(0);
+            let balanceAddr2End = await usdc.balanceOf(deployer.address)
+            expect(balanceAddr2End).to.equal(toWei(fromWei(balanceAddr2Bet) + 1_000 * 0.99));
+            expect(await usdc.balanceOf(poolMaster.address)).to.equal(toWei(1_000 * 0.01));
         })
     })
 })
