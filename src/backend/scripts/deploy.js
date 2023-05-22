@@ -10,27 +10,33 @@ async function main() {
   console.log("Account balance:", fromWei(await deployer.getBalance()));
   
   const PoolMaster = await ethers.getContractFactory("PoolMaster");
-  const Erc20Usdc = await ethers.getContractFactory("Erc20Usdc");
-  const Token = await ethers.getContractFactory("Token");
+  // const Erc20Usdc = await ethers.getContractFactory("Erc20Usdc");
+  // const Token = await ethers.getContractFactory("Token");
 
-  usdc = await Erc20Usdc.deploy();
-  console.log("Erc20Usdc contract address", usdc.address)
-  saveFrontendFiles(usdc, "Erc20Usdc");
+  // usdc = await Erc20Usdc.deploy();
+  // console.log("Erc20Usdc contract address", usdc.address)
+  // saveFrontendFiles(usdc, "Erc20Usdc");
 
-  token = await Token.deploy();
-  console.log("Token contract address", token.address)
-  saveFrontendFiles(token, "Token");
+  // token = await Token.deploy();
+  // console.log("Token contract address", token.address)
+  // saveFrontendFiles(token, "Token");
 
   poolMaster = await PoolMaster.deploy();
   console.log("PoolMaster contract address", poolMaster.address)
   saveFrontendFiles(poolMaster, "PoolMaster");
         
-  const usdcAddress = usdc.address
-  const tokenAddress = token.address
+  // const usdcAddress = usdc.address
+  // const tokenAddress = token.address
+  const usdcAddress = "0x5d7897579269F234015ba65743D9108F4AD5dB22"
+  const tokenAddress = "0x4F69a31125a4bA6a51786181d5cC5a15E69df0c5"
   await poolMaster.setTokenAddress(tokenAddress);
   await poolMaster.setUsdcAddress(usdcAddress);
 
   console.log("Setters functions called")
+  
+  // to remove for mainnet
+  await poolMaster.startEpoch(deployer.address, "0xaFc26D44Eeb63441f4D83De8b10772DD79169a0e", "BNB", "PEPE");
+  console.log("Test functions called")
 
   // todo
   

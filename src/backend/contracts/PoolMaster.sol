@@ -77,8 +77,8 @@ contract PoolMaster is Ownable {
         Staker memory _staker = Staker(_poolId, _stakeAmount, _isUsdc, msg.sender);
         
         stakersMapping[msg.sender] = _staker;
-        pools[_poolId].tokenCount += _isUsdc ? 0 : 1;
-        pools[_poolId].usdcCount += _isUsdc ? 1 : 0;
+        pools[_poolId].tokenCount += _isUsdc ? 0 : _amount;
+        pools[_poolId].usdcCount += _isUsdc ? _amount : 0;
 
         if (_poolId == 0) {
             stakersPool1.push(_staker);

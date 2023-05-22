@@ -36,7 +36,7 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools}) => {
     }
     
     const stake = async () => {
-        console.log("stake", chosenPool)
+        console.log("stake", chosenPool, chosenAmount, chosenUsdc)
         let amount = toWei(chosenAmount)
         let isUsdc = chosenUsdc
 
@@ -66,19 +66,20 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools}) => {
                 <PoolCard pool={pools[1]} poolNumber={2} phase={phase} clickBet={clickBet}/>
                 <PoolCard pool={pools[2]} poolNumber={3} phase={phase} clickBet={clickBet} noWinner/>
             </Row>
-
-            <Row className="timeLeftRow mt-5">
-                <div>
-                    Current phase: {phaseIdToText()}
-                </div>
-                <div>
-                    {phase != 2 ? (
-                        <>
-                            {getTimeLeftString(timeleft)}
-                        </>
-                    ) : ( <></> )}
-                </div>
-            </Row>
+            {pools != null && pools.length > 0 ?(
+                <Row className="timeLeftRow mt-5">
+                    <div>
+                        Current phase: {phaseIdToText()}
+                    </div>
+                    <div>
+                        {phase != 2 ? (
+                            <>
+                                {getTimeLeftString(timeleft)}
+                            </>
+                        ) : ( <></> )}
+                    </div>
+                </Row>
+            ) : (<></>)}
             {showPlaceBetPopup ? (
                 <>
                     <div className="placeBetPopupBg" onClick={() => setShowPlaceBetPopup(false)}>

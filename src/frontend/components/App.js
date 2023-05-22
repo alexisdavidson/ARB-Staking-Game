@@ -20,7 +20,7 @@ import TokenAddress from '../contractsData/Token-address.json'
 import PoolMasterAbi from '../contractsData/PoolMaster.json'
 import PoolMasterAddress from '../contractsData/PoolMaster-address.json'
 
-const fromWei = (num) => ethers.utils.formatEther(num)
+const fromWei = (num) => Math.floor(ethers.utils.formatEther(num))
 const toWei = (num) => ethers.utils.parseEther(num.toString())
 
 
@@ -54,6 +54,18 @@ function App() {
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     console.log("account:", accounts[0])
     setAccount(accounts[0])
+
+    const providerTemp = new ethers.providers.Web3Provider(window.ethereum)
+    const signer = providerTemp.getSigner()
+    setProvider(providerTemp)
+
+    const poolMaster = new ethers.Contract(PoolMasterAddress.address, PoolMasterAbi.abi, signer)
+    const token = new ethers.Contract(TokenAddress.address, TokenAbi.abi, signer)
+    const usdc = new ethers.Contract(Erc20UsdcAddress.address, Erc20UsdcAbi.abi, signer)
+
+    setPoolMaster(poolMaster)
+    setToken(token)
+    setUsdc(usdc)
   }
 
   const loadContracts = async () => {
@@ -94,22 +106,25 @@ function App() {
     let poolsTemp = []
     poolsTemp.push({
       token: await poolMaster.getSymbol(0),
-      tokenCount: parseInt(await poolMaster.getStakedTokens(0, false)),
-      usdcCount: parseInt(await poolMaster.getStakedTokens(0, true)),
+      tokenCount: fromWei(await poolMaster.getStakedTokens(0, false)),
+      usdcCount: fromWei(await poolMaster.getStakedTokens(0, true)),
       lastWinner: await poolMaster.getLastWinner(0)
     })
     poolsTemp.push({
       token: await poolMaster.getSymbol(1),
-      tokenCount: parseInt(await poolMaster.getStakedTokens(1, false)),
-      usdcCount: parseInt(await poolMaster.getStakedTokens(1, true)),
+      tokenCount: fromWei(await poolMaster.getStakedTokens(1, false)),
+      usdcCount: fromWei(await poolMaster.getStakedTokens(1, true)),
       lastWinner: await poolMaster.getLastWinner(1)
     })
     poolsTemp.push({
-      tokenCount: parseInt(await poolMaster.getStakedTokens(2, false)),
-      usdcCount: parseInt(await poolMaster.getStakedTokens(2, true)),
+      tokenCount: fromWei(await poolMaster.getStakedTokens(2, false)),
+      usdcCount: fromWei(await poolMaster.getStakedTokens(2, true)),
     })
 
     setPools(poolsTemp)
+
+    console.log("poolsTemp")
+    console.log(poolsTemp)
   }
 
   const iniTimer = (startTimestamp, duration) => {
