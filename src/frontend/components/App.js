@@ -7,6 +7,7 @@ import './App.css';
 import Navbar from './Navbar'
 import Footer from './Footer'
 import Home from './Home'
+import Leaderboard from "./Leaderboard";
 import Menu from './Menu'
 
 import { useState, useEffect, useRef } from 'react'
@@ -157,9 +158,15 @@ function App() {
     <BrowserRouter>
       <div className="App" id="wrapper">
         <div className="m-0 p-0 container-fluid">
-          <Navbar web3Handler={web3Handler} account={account} />
-          <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}
-            pools={pools} />
+          <Navbar web3Handler={web3Handler} account={account} setMenu={setMenu} />
+          {
+              {
+                '0': <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}
+                  pools={pools} />,
+                '1': <Leaderboard />
+              }[menu]
+            }
+
           <Footer />
         </div>
         

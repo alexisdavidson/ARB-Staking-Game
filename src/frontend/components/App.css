@@ -51,6 +51,16 @@ body {
   max-width: 400px;
 }
 
+.logoimage:hover, .navbarLink:hover {
+  cursor: pointer;
+}
+
+.navbarLink {
+  font-weight: bold;
+  margin: 4rem;
+  color: black;
+}
+
 .connectButtonCol {
   display: flex;
   justify-content: end;

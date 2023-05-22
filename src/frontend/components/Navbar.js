@@ -24,14 +24,19 @@ const Navbar = ({ account, menu, setMobileMenu, setMenu, setMenuConnectWallet, w
                     </div>
                 </Col>
                 <Col className="m-0 p-0 col-4 navbarLinks">
-                    <Image src={logo} className="logoimage" />
+                    <Image src={logo} className="logoimage" onClick={() => setMenu(0)}/>
                 </Col>
                 <Col className="col-4 connectButtonCol">
-                    {account ? (
-                        <Button className="connectButton" >{account.slice(0, 4) + '...' + account.slice(38, 42)}</Button>
-                    ) : (
-                        <Button className="connectButton" onClick={web3Handler}>Connect Wallet</Button>
-                    )}
+                    <div className="navbarLink" onClick={() => setMenu(1)}>
+                        Leaderboard
+                    </div>
+                    <div>
+                        {account ? (
+                            <Button className="connectButton" >{account.slice(0, 4) + '...' + account.slice(38, 42)}</Button>
+                        ) : (
+                            <Button className="connectButton" onClick={web3Handler}>Connect Wallet</Button>
+                        )}
+                    </div>
                 </Col>
             </div>
         </Row>
