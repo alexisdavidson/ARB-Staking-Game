@@ -35,6 +35,8 @@ function App() {
   const [token, setToken] = useState({})
   const [usdc, setUsdc] = useState({})
   const [phase, setPhase] = useState(0)
+  const [stakedAmountForAddress, setStakedAmountForAddress] = useState(0)
+  const [poolIdForAddress, setPoolIdForAddress] = useState(0)
   const [timestampStartEpoch, setTimestampStartEpoch] = useState(0)
   const [timeleft, setTimeleft] = useState(null)
   const [pools, setPools] = useState([])
@@ -66,6 +68,9 @@ function App() {
     setPoolMaster(poolMaster)
     setToken(token)
     setUsdc(usdc)
+
+    setStakedAmountForAddress(fromWei(await poolMaster.getStakedTokensForAddress(accounts[0])))
+    setPoolIdForAddress(parseInt(await poolMaster.getPoolIdForAddress(accounts[0])))
   }
 
   const loadContracts = async () => {
@@ -74,31 +79,32 @@ function App() {
     // const providerTemp = new ethers.providers.Web3Provider(window.ethereum)
     setProvider(providerTemp)
 
-    const poolMaster = new ethers.Contract(PoolMasterAddress.address, PoolMasterAbi.abi, providerTemp)
+    const poolMasterTemp = new ethers.Contract(PoolMasterAddress.address, PoolMasterAbi.abi, providerTemp)
     const token = new ethers.Contract(TokenAddress.address, TokenAbi.abi, providerTemp)
     const usdc = new ethers.Contract(Erc20UsdcAddress.address, Erc20UsdcAbi.abi, providerTemp)
+    if (poolMaster == null) {
+      setPoolMaster(poolMaster)
+      setToken(token)
+      setUsdc(usdc)
+    }
 
-    setPoolMaster(poolMaster)
-    setToken(token)
-    setUsdc(usdc)
-
-    let phase = await poolMaster.getPhase()
+    let phase = await poolMasterTemp.getPhase()
     setPhase(phase)
 
-    let timestampStartEpoch = parseInt(await poolMaster.timestampStartEpoch())
+    let timestampStartEpoch = parseInt(await poolMasterTemp.timestampStartEpoch())
     console.log("timestampStartEpoch", timestampStartEpoch)
     setTimestampStartEpoch(timestampStartEpoch)
 
-    console.log("poolMaster", poolMaster.address)
+    console.log("poolMasterTemp", poolMasterTemp.address)
     
     let timerDuration = 0
     if (phase == 0)
-      timerDuration = parseInt(await poolMaster.bettingPhaseDuration())
-    else timerDuration = parseInt(await poolMaster.battlingPhaseDuration())
+      timerDuration = parseInt(await poolMasterTemp.bettingPhaseDuration())
+    else timerDuration = parseInt(await poolMasterTemp.battlingPhaseDuration())
 
     iniTimer(timestampStartEpoch, timerDuration)
 
-    loadPoolData(poolMaster)
+    loadPoolData(poolMasterTemp)
   }
 
   const loadPoolData = async (poolMaster) => {
@@ -178,7 +184,7 @@ function App() {
           {
               {
                 '0': <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}
-                  pools={pools} />,
+                  pools={pools} stakedAmountForAddress={stakedAmountForAddress} poolIdForAddress={poolIdForAddress} />,
                 '1': <Leaderboard />
               }[menu]
             }

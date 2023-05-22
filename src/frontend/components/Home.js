@@ -7,7 +7,7 @@ import PoolCard from './PoolCard'
 const fromWei = (num) => ethers.utils.formatEther(num)
 const toWei = (num) => ethers.utils.parseEther(num.toString())
 
-const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools}) => {
+const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedAmountForAddress, poolIdForAddress}) => {
     const [showPlaceBetPopup, setShowPlaceBetPopup] = useState(false)
     const [chosenPool, setChosenPool] = useState(0)
     const [chosenAmount, setChosenAmount] = useState(100)
@@ -62,10 +62,17 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools}) => {
     return (
         <Row className="home">
             <Row className="cardRow">
-                <PoolCard pool={pools[0]} poolNumber={1} phase={phase} clickBet={clickBet}/>
-                <PoolCard pool={pools[1]} poolNumber={2} phase={phase} clickBet={clickBet}/>
-                <PoolCard pool={pools[2]} poolNumber={3} phase={phase} clickBet={clickBet} noWinner/>
+                <PoolCard pool={pools[0]} poolNumber={1} phase={phase} clickBet={clickBet} stakedAmountForAddress={stakedAmountForAddress} />
+                <PoolCard pool={pools[1]} poolNumber={2} phase={phase} clickBet={clickBet} stakedAmountForAddress={stakedAmountForAddress} />
+                <PoolCard pool={pools[2]} poolNumber={3} phase={phase} clickBet={clickBet} stakedAmountForAddress={stakedAmountForAddress}  noWinner/>
             </Row>
+            {stakedAmountForAddress > 0 ? (
+                <Row className="timeLeftRow mt-5">
+                    <div>
+                        You bet {stakedAmountForAddress} in pool {poolIdForAddress + 1}
+                    </div>
+                </Row>
+            ) : (<></>)}
             {pools != null && pools.length > 0 ?(
                 <Row className="timeLeftRow mt-5">
                     <div>

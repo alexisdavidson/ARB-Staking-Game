@@ -7,7 +7,7 @@ import Spinner from 'react-bootstrap/Spinner';
 const fromWei = (num) => ethers.utils.formatEther(num)
 const toWei = (num) => ethers.utils.parseEther(num.toString())
 
-const PoolCard = ({pool, poolNumber, phase, clickBet, noWinner}) => {
+const PoolCard = ({pool, poolNumber, phase, clickBet, noWinner, stakedAmountForAddress}) => {
     return (
         <Card bg="dark" className="cardPool">
             <Card.Title>Pool {poolNumber}</Card.Title>
@@ -32,10 +32,13 @@ const PoolCard = ({pool, poolNumber, phase, clickBet, noWinner}) => {
                     <Card.Footer>
                         <div className='d-grid'>
                             {phase == 0 ? (
-                                <Button variant="success" size="lg" onClick={() => clickBet(poolNumber - 1)}>
-                                    Bet
-                                </Button>
-                            ) : ( <>Betting phase not started</> )}
+                                stakedAmountForAddress == 0 ? (
+                                    <Button variant="success" size="lg" onClick={() => clickBet(poolNumber - 1)}>
+                                        Bet
+                                    </Button>
+                                ) : ( <></> )
+                            // ) : ( <>Betting phase not started</> )}
+                            ) : ( <></> )}
                         </div>
                     </Card.Footer>
                 </>
