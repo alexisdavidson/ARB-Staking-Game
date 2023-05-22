@@ -12,7 +12,6 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
     const [chosenPool, setChosenPool] = useState(0)
     const [chosenAmount, setChosenAmount] = useState(100)
     const [chosenUsdc, setchosenUsdc] = useState(false)
-    const [pool1_tokenCount, setpool1_tokenCount] = useState(0)
 
     const onChangeChosenAmount = (e) => {
         setChosenAmount(parseInt(e.target.value, 10));
@@ -52,12 +51,6 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
 
         await poolMaster.stake(chosenPool, amount, isUsdc)
     }
-
-    useEffect(async () => {
-        if (poolMaster != null) {
-            setpool1_tokenCount(fromWei(await poolMaster.getStakedTokens(0, false)))
-        }
-    }, [poolMaster])
 
     return (
         <Row className="home">

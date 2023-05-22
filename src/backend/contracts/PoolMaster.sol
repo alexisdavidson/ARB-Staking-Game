@@ -32,6 +32,8 @@ contract PoolMaster is Ownable {
     Staker[] private stakersPool1;
     Staker[] private stakersPool2;
     Staker[] private stakersPool3;
+    
+    WinnerAddress[] private winAddresses;
 
     struct Pool {
         address token;
@@ -46,6 +48,13 @@ contract PoolMaster is Ownable {
         uint256 amount;
         bool isUsdc;
         address stakerAddress;
+    }
+
+    struct WinnerAddress {
+        uint256 amount;
+        bool isUsdc;
+        address stakerAddress;
+        uint256 timestampWon;
     }
 
 
@@ -164,8 +173,10 @@ contract PoolMaster is Ownable {
             Staker memory _staker = _poolWinnerId == 0 ? stakersPool1[i] : stakersPool2[i];
             if (_staker.isUsdc) {
                 usdc.transfer(_staker.stakerAddress, _staker.amount + _usdcUserWinAmount);
+                winAddresses.push(WinnerAddress(_usdcUserWinAmount, _staker.isUsdc, _staker.stakerAddress, block.timestamp));
             } else {
                 token.transfer(_staker.stakerAddress, _staker.amount + _tokenUserWinAmount);
+                winAddresses.push(WinnerAddress(_tokenUserWinAmount, _staker.isUsdc, _staker.stakerAddress, block.timestamp));
             }
 
             stakersMapping[_staker.stakerAddress] = Staker(0, 0, false, address(0));
@@ -246,6 +257,67 @@ contract PoolMaster is Ownable {
 
     function getSymbol(uint256 _poolId) public view returns (string memory) {
         return pools[_poolId].symbol;
+    }
+
+    function getWinnerAddressAmountsForLastSeconds(uint256 _lastSeconds) public view returns (uint256[] memory) {
+        uint256 _currentTimestamp = block.timestamp;
+        uint256 _winnersLength = winAddresses.length;
+        
+        uint256 arrayLength = 0;
+        for(uint256 i = 0; i < _winnersLength;) {
+            if (winAddresses[i].timestampWon + _lastSeconds > _currentTimestamp)
+                arrayLength ++;
+            unchecked { ++ i; }
+        }
+        
+        uint256[] memory _amounts = new uint256[](arrayLength);
+        for(uint256 i = 0; i < _winnersLength;) {
+            if (winAddresses[i].timestampWon + _lastSeconds > _currentTimestamp)
+                _amounts[i] = winAddresses[i].amount;
+            unchecked { ++ i; }
+        }
+
+        return _amounts;
+    }
+
+    function getWinnerAddressStakerAddressForLastSeconds(uint256 _lastSeconds) public view returns (address[] memory) {
+        uint256 _currentTimestamp = block.timestamp;
+        uint256 _winnersLength = winAddresses.length;
+        
+        uint256 arrayLength = 0;
+        for(uint256 i = 0; i < _winnersLength;) {
+            if (winAddresses[i].timestampWon + _lastSeconds > _currentTimestamp)
+                arrayLength ++;
+            unchecked { ++ i; }
+        }
+        
+        address[] memory _addresses = new address[](arrayLength);
+        for(uint256 i = 0; i < _winnersLength;) {
+            if (winAddresses[i].timestampWon + _lastSeconds > _currentTimestamp)
+                _addresses[i] = winAddresses[i].stakerAddress;
+            unchecked { ++ i; }
+        }
+        return _addresses;
+    }
+
+    function getWinnerAddressIsUsdcForLastSeconds(uint256 _lastSeconds) public view returns (bool[] memory) {
+        uint256 _currentTimestamp = block.timestamp;
+        uint256 _winnersLength = winAddresses.length;
+        
+        uint256 arrayLength = 0;
+        for(uint256 i = 0; i < _winnersLength;) {
+            if (winAddresses[i].timestampWon + _lastSeconds > _currentTimestamp)
+                arrayLength ++;
+            unchecked { ++ i; }
+        }
+        
+        bool[] memory _isUsdc = new bool[](arrayLength);
+        for(uint256 i = 0; i < _winnersLength;) {
+            if (winAddresses[i].timestampWon + _lastSeconds > _currentTimestamp)
+                _isUsdc[i] = winAddresses[i].isUsdc;
+            unchecked { ++ i; }
+        }
+        return _isUsdc;
     }
 
     // SETTERS
