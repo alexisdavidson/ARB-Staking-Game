@@ -13,6 +13,10 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools}) => {
     const [chosenUsdc, setchosenUsdc] = useState(false)
     const [pool1_tokenCount, setpool1_tokenCount] = useState(0)
 
+    const onChangeChosenAmount = (e) => {
+        setChosenAmount(parseInt(e.target.value, 10));
+    }
+
     const phaseIdToText = () => {
         if (phase == 2)
             return "Epoch Ended"
@@ -81,7 +85,7 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools}) => {
                                 <Button variant="success" size="lg" onClick={() => clickBet(0)}>
                                     Bet
                                 </Button>
-                            ) : ( <></> )}
+                            ) : ( <>Betting phase not started</> )}
                         </div>
                     </Card.Footer>
                 </Card>
@@ -109,7 +113,7 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools}) => {
                                 <Button variant="success" size="lg" onClick={() => clickBet(1)}>
                                     Bet
                                 </Button>
-                            ) : ( <></> )}
+                            ) : ( <>Betting phase not started</> )}
                         </div>
                     </Card.Footer>
                 </Card>
@@ -129,7 +133,7 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools}) => {
                                 <Button variant="success" size="lg" onClick={() => clickBet(2)}>
                                     Bet
                                 </Button>
-                            ) : ( <></> )}
+                            ) : ( <>Betting phase not started</> )}
                         </div>
                     </Card.Footer>
                 </Card>
@@ -165,7 +169,26 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools}) => {
                             </Form>
                         </div>
                         <div className="my-3">
-                            Amount: 100
+    <Form>
+      <Form.Group controlId="formRange" className="d-flex align-items-center justify-content-center">
+        <Form.Label className="me-3" >Amount:</Form.Label>
+        <Form.Control
+          type="number"
+          value={chosenAmount}
+          onChange={onChangeChosenAmount}
+          style={{ width: '100px' }} // Adjust the width as desired
+        />
+      </Form.Group>
+      <Form.Group controlId="formSlider">
+        <Form.Range
+          min={5}
+          max={500}
+          step={1}
+          value={chosenAmount}
+          onChange={onChangeChosenAmount}
+        />
+      </Form.Group>
+    </Form>
                         </div>
                         <div className="my-5">
                             <Button className="mx-2" variant="warning" size="lg" onClick={() => setShowPlaceBetPopup(false)}>

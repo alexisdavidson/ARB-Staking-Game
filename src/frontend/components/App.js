@@ -27,7 +27,7 @@ const toWei = (num) => ethers.utils.parseEther(num.toString())
 
 function App() {
   const [account, setAccount] = useState(null)
-  const [menu, setMenu] = useState(-1 * 1)
+  const [menu, setMenu] = useState(0)
   const [popup, setPopup] = useState(0)
   const [intervalVariable, setIntervalVariable] = useState(null)
   const [signer, setSigner] = useState(null)
