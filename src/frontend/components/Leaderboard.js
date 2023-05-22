@@ -12,6 +12,32 @@ const Leaderboard = ({network}) => {
     const [poolMaster, setPoolMaster] = useState(null)
     const [elements, setElements] = useState([])
 
+    
+    const loadLeaderboard = async (poolMaster) => {
+        console.log("loadLeaderboard")
+
+        let timeRandInSeconds = 60 * 60 * 24 * 7 // 1 week
+
+        let winnerAddressAmountsForLastSeconds = await poolMaster.getWinnerAddressAmountsForLastSeconds(timeRandInSeconds)
+        console.log("winnerAddressAmountsForLastSeconds", winnerAddressAmountsForLastSeconds)
+        let winnerAddressStakerAddressForLastSeconds = await poolMaster.getWinnerAddressStakerAddressForLastSeconds(timeRandInSeconds)
+        console.log("winnerAddressStakerAddressForLastSeconds", winnerAddressStakerAddressForLastSeconds)
+        let winnerAddressIsUsdcForLastSeconds = await poolMaster.getWinnerAddressIsUsdcForLastSeconds(timeRandInSeconds)
+        console.log("winnerAddressIsUsdcForLastSeconds", winnerAddressIsUsdcForLastSeconds)
+
+        let arrayLength = winnerAddressAmountsForLastSeconds.length
+        let elementsTemp = []
+        for(let i = 0; i < arrayLength; i++) {
+            elementsTemp.push({
+                address: winnerAddressAmountsForLastSeconds[i],
+                amount: fromWei(winnerAddressStakerAddressForLastSeconds[i]),
+                isUsdc: winnerAddressIsUsdcForLastSeconds[i]
+            })
+        }
+
+        setElements(elementsTemp)
+    }
+
     const loadContracts = async () => {
         console.log("loadContracts")
         const providerTemp = new ethers.providers.InfuraProvider(network, process.env.REACT_APP_INFURA_PROJECT_ID);
@@ -19,21 +45,7 @@ const Leaderboard = ({network}) => {
         const poolMasterTemp = new ethers.Contract(PoolMasterAddress.address, PoolMasterAbi.abi, providerTemp)
         setPoolMaster(poolMasterTemp)
 
-        // let phase = await poolMasterTemp.getPhase()
-        // setPhase(phase)
-        let elementsTemp = []
-        elementsTemp.push({
-            address: "0x324r3rehdg",
-            amount: 234523,
-            isUsdc: false
-        })
-        elementsTemp.push({
-            address: "0x234234234",
-            amount: 234234234,
-            isUsdc: true
-        })
-
-        setElements(elementsTemp)
+        loadLeaderboard(poolMasterTemp)
     }
         
     useEffect(async () => {
@@ -53,15 +65,15 @@ const Leaderboard = ({network}) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {elements != null && elements.length > 0 ? elements.map((val) => {
+                        {elements != null && elements.length > 0 ? elements.map((val, i) => {
                             return (
-                                <tr>
+                                <tr key={i}>
                                     <th scope="row">{val.address}</th>
                                     <td>{val.amount} {val.isUsdc ? "USDC" : "$ATLAS"}</td>
                                 </tr>
                             );
                         })
-                        : <span />
+                        : <></>
                     }
                     </tbody>
                 </table>
