@@ -47,24 +47,25 @@ function App() {
 
   const zeroPad = (num, places) => String(num).padStart(places, '0')
 
+  const network = 'sepolia'
+  // const network = 'ethereum'
+
   const web3Handler = async () => {
     console.log("web3Handler")
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     console.log("account:", accounts[0])
     setAccount(accounts[0])
-
-    await loadContracts(accounts[0])
   }
 
-  const loadContracts = async (acc) => {
+  const loadContracts = async () => {
     console.log("loadContracts")
-    const providerTemp = new ethers.providers.Web3Provider(window.ethereum)
+    const providerTemp = new ethers.providers.InfuraProvider(network, process.env.REACT_APP_INFURA_PROJECT_ID);
+    // const providerTemp = new ethers.providers.Web3Provider(window.ethereum)
     setProvider(providerTemp)
-    const signer = providerTemp.getSigner()
 
-    const poolMaster = new ethers.Contract(PoolMasterAddress.address, PoolMasterAbi.abi, signer)
-    const token = new ethers.Contract(TokenAddress.address, TokenAbi.abi, signer)
-    const usdc = new ethers.Contract(Erc20UsdcAddress.address, Erc20UsdcAbi.abi, signer)
+    const poolMaster = new ethers.Contract(PoolMasterAddress.address, PoolMasterAbi.abi, providerTemp)
+    const token = new ethers.Contract(TokenAddress.address, TokenAbi.abi, providerTemp)
+    const usdc = new ethers.Contract(Erc20UsdcAddress.address, Erc20UsdcAbi.abi, providerTemp)
 
     setPoolMaster(poolMaster)
     setToken(token)
@@ -134,6 +135,7 @@ function App() {
   }
 
   useEffect(async () => {
+    loadContracts()
     return () => {
       clearInterval(intervalRef.current);
     };
