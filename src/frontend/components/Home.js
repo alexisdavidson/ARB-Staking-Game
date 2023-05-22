@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { ethers } from "ethers"
 import { Image, Row, Col, Button, Form, Card } from 'react-bootstrap'
 import {getTimeLeftString} from './TimeOperation'
+import PoolCard from './PoolCard'
 
 const fromWei = (num) => ethers.utils.formatEther(num)
 const toWei = (num) => ethers.utils.parseEther(num.toString())
@@ -61,82 +62,9 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools}) => {
     return (
         <Row className="home">
             <Row className="cardRow">
-                <Card bg="dark" className="cardPool">
-                    <Card.Body color="secondary">
-                        <Card.Title>Pool 1</Card.Title>
-                            <div className="my-2 mt-4">
-                                {pools[0]?.token}
-                            </div>
-                            <div className="my-2">
-                                Staked Tokens: {pools[0]?.tokenCount}
-                            </div>
-                            <div className="my-2">
-                                Staked Usdc: {pools[0]?.usdcCount}
-                            </div>
-                            <div className="my-2">
-                                {pools[0]?.lastWinner != null && pools[1]?.lastWinner != "0x0000000000000000000000000000000000000000" ? (
-                                    <>Last Winner: {pools[0]?.lastWinner}</>
-                                ) : <></>}
-                            </div>
-                    </Card.Body>
-                    <Card.Footer>
-                        <div className='d-grid'>
-                            {phase == 0 ? (
-                                <Button variant="success" size="lg" onClick={() => clickBet(0)}>
-                                    Bet
-                                </Button>
-                            ) : ( <>Betting phase not started</> )}
-                        </div>
-                    </Card.Footer>
-                </Card>
-                <Card bg="dark" className="cardPool">
-                    <Card.Body color="secondary">
-                        <Card.Title>Pool 2</Card.Title>
-                        <div className="my-2 mt-4">
-                            {pools[1]?.token}
-                        </div>
-                        <div className="my-2">
-                            Staked Tokens: {pools[1]?.tokenCount}
-                        </div>
-                        <div className="my-2">
-                            Staked Usdc: {pools[1]?.usdcCount}
-                        </div>
-                        <div className="my-2">
-                            {pools[1]?.lastWinner != null && pools[1]?.lastWinner != "0x0000000000000000000000000000000000000000" ? (
-                                <>Last Winner: {pools[1]?.lastWinner}</>
-                            ) : <></>}
-                        </div>
-                    </Card.Body>
-                    <Card.Footer>
-                        <div className='d-grid'>
-                            {phase == 0 ? (
-                                <Button variant="success" size="lg" onClick={() => clickBet(1)}>
-                                    Bet
-                                </Button>
-                            ) : ( <>Betting phase not started</> )}
-                        </div>
-                    </Card.Footer>
-                </Card>
-                <Card bg="dark" className="cardPool">
-                    <Card.Body color="secondary">
-                        <Card.Title>Pool 3</Card.Title>
-                        <div className="my-2 mt-4">
-                            Staked Tokens: {pools[0]?.tokenCount}
-                        </div>
-                        <div className="my-2">
-                            Staked Usdc: {pools[0]?.usdcCount}
-                        </div>
-                    </Card.Body>
-                    <Card.Footer>
-                        <div className='d-grid'>
-                            {phase == 0 ? (
-                                <Button variant="success" size="lg" onClick={() => clickBet(2)}>
-                                    Bet
-                                </Button>
-                            ) : ( <>Betting phase not started</> )}
-                        </div>
-                    </Card.Footer>
-                </Card>
+                <PoolCard pool={pools[0]} poolNumber={1} phase={phase} clickBet={clickBet}/>
+                <PoolCard pool={pools[1]} poolNumber={2} phase={phase} clickBet={clickBet}/>
+                <PoolCard pool={pools[2]} poolNumber={3} phase={phase} clickBet={clickBet} noWinner/>
             </Row>
 
             <Row className="timeLeftRow mt-5">

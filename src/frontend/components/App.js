@@ -8,7 +8,6 @@ import Navbar from './Navbar'
 import Footer from './Footer'
 import Home from './Home'
 import Leaderboard from "./Leaderboard";
-import Menu from './Menu'
 
 import { useState, useEffect, useRef } from 'react'
 import Spinner from 'react-bootstrap/Spinner';
