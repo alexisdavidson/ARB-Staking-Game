@@ -185,7 +185,7 @@ function App() {
               {
                 '0': <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}
                   pools={pools} stakedAmountForAddress={stakedAmountForAddress} poolIdForAddress={poolIdForAddress} />,
-                '1': <Leaderboard />
+                '1': <Leaderboard network={network} />
               }[menu]
             }
 
