@@ -5,7 +5,7 @@ import {getTimeLeftString} from './TimeOperation'
 import PoolMasterAbi from '../contractsData/PoolMaster.json'
 import PoolMasterAddress from '../contractsData/PoolMaster-address.json'
 
-const fromWei = (num) => ethers.utils.formatEther(num)
+const fromWei = (num) => Math.ceil(ethers.utils.formatEther(num))
 const toWei = (num) => ethers.utils.parseEther(num.toString())
 
 const Leaderboard = ({network}) => {
@@ -29,8 +29,8 @@ const Leaderboard = ({network}) => {
         let elementsTemp = []
         for(let i = 0; i < arrayLength; i++) {
             elementsTemp.push({
-                address: winnerAddressAmountsForLastSeconds[i],
-                amount: fromWei(winnerAddressStakerAddressForLastSeconds[i]),
+                address: winnerAddressStakerAddressForLastSeconds[i],
+                amount: fromWei(winnerAddressAmountsForLastSeconds[i]),
                 isUsdc: winnerAddressIsUsdcForLastSeconds[i]
             })
         }
