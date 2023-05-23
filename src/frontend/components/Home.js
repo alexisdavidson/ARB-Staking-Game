@@ -13,6 +13,20 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
     const [chosenAmount, setChosenAmount] = useState(100)
     const [chosenUsdc, setchosenUsdc] = useState(false)
 
+    const callApi = async () => {
+        console.log("callApi")
+        // Make a request to the API endpoint
+        fetch('http://localhost:3000/')
+            .then(response => response.text())
+            .then(data => {
+            // Display the response in the browser
+            console.log(data); // Or update the DOM with the data
+        })
+        .catch(error => {
+            console.log('Error:', error);
+        });
+    }
+
     const onChangeChosenAmount = (e) => {
         setChosenAmount(parseInt(e.target.value, 10));
     }
@@ -51,6 +65,10 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
 
         await poolMaster.stake(chosenPool, amount, isUsdc)
     }
+
+    useEffect(async () => {
+        callApi()
+    }, [])
 
     return (
         <Row className="home">
