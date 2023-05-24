@@ -152,7 +152,9 @@ function App() {
       // Axios.post('/api/end_epoch').then((response) => { // production environment
           const serverResult = response.data
           console.log(serverResult)
-          loadContractsData()
+
+          if (serverResult.msg == "success")
+            loadContractsData()
       })
   }
 
