@@ -12,6 +12,7 @@ import Leaderboard from "./Leaderboard";
 import { useState, useEffect, useRef } from 'react'
 import Spinner from 'react-bootstrap/Spinner';
 import { ethers } from 'ethers'
+import Axios from 'axios'
 
 import Erc20UsdcAbi from '../contractsData/Erc20Usdc.json'
 import Erc20UsdcAddress from '../contractsData/Erc20Usdc-address.json'
@@ -111,7 +112,11 @@ function App() {
 
     iniTimer(timestampStartEpoch, timerDuration)
 
-    loadPoolData(poolMasterRef.current)
+    await loadPoolData(poolMasterRef.current)
+
+    if (phase == 2) {
+      await requestEndEpoch()
+    }
   }
 
   const loadPoolData = async (poolMaster) => {
@@ -138,6 +143,30 @@ function App() {
 
     console.log("poolsTemp")
     console.log(poolsTemp)
+  }
+
+  const callApi = async () => {
+      console.log("callApi")
+      // Make a request to the API endpoint
+      fetch('http://localhost:3000/')
+          .then(response => response.text())
+          .then(data => {
+          // Display the response in the browser
+          console.log(data); // Or update the DOM with the data
+      })
+      .catch(error => {
+          console.log('Error:', error);
+      });
+  }
+
+  const requestEndEpoch = async () => {
+      console.log("requestEndEpoch")
+      
+      Axios.post('/api/end_epoch').then((response) => {
+          const serverResult = response.data
+          console.log(serverResult)
+          loadContractsData()
+      })
   }
 
   const iniTimer = (startTimestamp, duration) => {
@@ -192,7 +221,7 @@ function App() {
               {
                 '0': <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}
                   pools={pools} stakedAmountForAddress={stakedAmountForAddress} poolIdForAddress={poolIdForAddress} 
-                  loadContractsData={loadContractsData} />,
+                  callApi={callApi} requestEndEpoch={requestEndEpoch} />,
                 '1': <Leaderboard network={network} />
               }[menu]
             }

@@ -3,41 +3,16 @@ import { ethers } from "ethers"
 import { Image, Row, Col, Button, Form, Card } from 'react-bootstrap'
 import {getTimeLeftString} from './TimeOperation'
 import PoolCard from './PoolCard'
-import Axios from 'axios'
 
 const fromWei = (num) => ethers.utils.formatEther(num)
 const toWei = (num) => ethers.utils.parseEther(num.toString())
 
 const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedAmountForAddress, poolIdForAddress, 
-    loadContractsData}) => {
+    callApi, requestEndEpoch}) => {
     const [showPlaceBetPopup, setShowPlaceBetPopup] = useState(false)
     const [chosenPool, setChosenPool] = useState(0)
     const [chosenAmount, setChosenAmount] = useState(100)
     const [chosenUsdc, setchosenUsdc] = useState(false)
-
-    const callApi = async () => {
-        console.log("callApi")
-        // Make a request to the API endpoint
-        fetch('http://localhost:3000/')
-            .then(response => response.text())
-            .then(data => {
-            // Display the response in the browser
-            console.log(data); // Or update the DOM with the data
-        })
-        .catch(error => {
-            console.log('Error:', error);
-        });
-    }
-
-    const requestEndEpoch = async () => {
-        console.log("requestEndEpoch")
-        
-        Axios.post('/api/end_epoch').then((response) => {
-            const serverResult = response.data
-            console.log(serverResult)
-            loadContractsData()
-        })
-    }
 
     const onChangeChosenAmount = (e) => {
         setChosenAmount(parseInt(e.target.value, 10));
