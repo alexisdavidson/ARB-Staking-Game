@@ -145,24 +145,11 @@ function App() {
     console.log(poolsTemp)
   }
 
-  // const callApi = async () => {
-  //     console.log("callApi")
-  //     // Make a request to the API endpoint
-  //     fetch('http://localhost:3000/')
-  //         .then(response => response.text())
-  //         .then(data => {
-  //         // Display the response in the browser
-  //         console.log(data); // Or update the DOM with the data
-  //     })
-  //     .catch(error => {
-  //         console.log('Error:', error);
-  //     });
-  // }
-
   const requestEndEpoch = async () => {
       console.log("requestEndEpoch")
       
-      Axios.post('/api/end_epoch').then((response) => {
+      Axios.post('http://localhost:4000/api/end_epoch').then((response) => {
+      // Axios.post('/api/end_epoch').then((response) => { // production environment
           const serverResult = response.data
           console.log(serverResult)
           loadContractsData()
