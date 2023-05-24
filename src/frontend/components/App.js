@@ -83,28 +83,35 @@ function App() {
     const token = new ethers.Contract(TokenAddress.address, TokenAbi.abi, providerTemp)
     const usdc = new ethers.Contract(Erc20UsdcAddress.address, Erc20UsdcAbi.abi, providerTemp)
     if (poolMaster == null) {
-      setPoolMaster(poolMaster)
+      setPoolMaster(poolMasterTemp)
+      poolMasterRef.current = poolMasterTemp
       setToken(token)
       setUsdc(usdc)
     }
+    
+    await loadContractsData()
+  }
+  
+  const loadContractsData = async () => {
+    console.log("loadContractsData")
 
-    let phase = await poolMasterTemp.getPhase()
+    let phase = await poolMasterRef.current.getPhase()
     setPhase(phase)
 
-    let timestampStartEpoch = parseInt(await poolMasterTemp.timestampStartEpoch())
+    let timestampStartEpoch = parseInt(await poolMasterRef.current.timestampStartEpoch())
     console.log("timestampStartEpoch", timestampStartEpoch)
     setTimestampStartEpoch(timestampStartEpoch)
 
-    console.log("poolMasterTemp", poolMasterTemp.address)
+    console.log("poolMaster", poolMasterRef.current.address)
     
     let timerDuration = 0
     if (phase == 0)
-      timerDuration = parseInt(await poolMasterTemp.bettingPhaseDuration())
-    else timerDuration = parseInt(await poolMasterTemp.battlingPhaseDuration())
+      timerDuration = parseInt(await poolMasterRef.current.bettingPhaseDuration())
+    else timerDuration = parseInt(await poolMasterRef.current.battlingPhaseDuration())
 
     iniTimer(timestampStartEpoch, timerDuration)
 
-    loadPoolData(poolMasterTemp)
+    loadPoolData(poolMasterRef.current)
   }
 
   const loadPoolData = async (poolMaster) => {
@@ -184,7 +191,8 @@ function App() {
           {
               {
                 '0': <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}
-                  pools={pools} stakedAmountForAddress={stakedAmountForAddress} poolIdForAddress={poolIdForAddress} />,
+                  pools={pools} stakedAmountForAddress={stakedAmountForAddress} poolIdForAddress={poolIdForAddress} 
+                  loadContractsData={loadContractsData} />,
                 '1': <Leaderboard network={network} />
               }[menu]
             }

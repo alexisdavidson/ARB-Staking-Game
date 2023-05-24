@@ -3,11 +3,13 @@ import { ethers } from "ethers"
 import { Image, Row, Col, Button, Form, Card } from 'react-bootstrap'
 import {getTimeLeftString} from './TimeOperation'
 import PoolCard from './PoolCard'
+import Axios from 'axios'
 
 const fromWei = (num) => ethers.utils.formatEther(num)
 const toWei = (num) => ethers.utils.parseEther(num.toString())
 
-const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedAmountForAddress, poolIdForAddress}) => {
+const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedAmountForAddress, poolIdForAddress, 
+    loadContractsData}) => {
     const [showPlaceBetPopup, setShowPlaceBetPopup] = useState(false)
     const [chosenPool, setChosenPool] = useState(0)
     const [chosenAmount, setChosenAmount] = useState(100)
@@ -25,6 +27,16 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
         .catch(error => {
             console.log('Error:', error);
         });
+    }
+
+    const requestEndEpoch = async () => {
+        console.log("requestEndEpoch")
+        
+        Axios.post('/api/end_epoch').then((response) => {
+            const serverResult = response.data
+            console.log(serverResult)
+            loadContractsData()
+        })
     }
 
     const onChangeChosenAmount = (e) => {
@@ -94,10 +106,19 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
                             <>
                                 {getTimeLeftString(timeleft)}
                             </>
-                        ) : ( <></> )}
+                        ) : ( 
+                            <Button className="mx-2" variant="success" size="lg" onClick={() => requestEndEpoch()}>
+                                Find out who won!
+                            </Button>
+                        )}
                     </div>
                 </Row>
             ) : (<></>)}
+
+
+
+
+
             {showPlaceBetPopup ? (
                 <>
                     <div className="placeBetPopupBg" onClick={() => setShowPlaceBetPopup(false)}>
