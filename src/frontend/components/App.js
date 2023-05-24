@@ -145,19 +145,19 @@ function App() {
     console.log(poolsTemp)
   }
 
-  const callApi = async () => {
-      console.log("callApi")
-      // Make a request to the API endpoint
-      fetch('http://localhost:3000/')
-          .then(response => response.text())
-          .then(data => {
-          // Display the response in the browser
-          console.log(data); // Or update the DOM with the data
-      })
-      .catch(error => {
-          console.log('Error:', error);
-      });
-  }
+  // const callApi = async () => {
+  //     console.log("callApi")
+  //     // Make a request to the API endpoint
+  //     fetch('http://localhost:3000/')
+  //         .then(response => response.text())
+  //         .then(data => {
+  //         // Display the response in the browser
+  //         console.log(data); // Or update the DOM with the data
+  //     })
+  //     .catch(error => {
+  //         console.log('Error:', error);
+  //     });
+  // }
 
   const requestEndEpoch = async () => {
       console.log("requestEndEpoch")
@@ -221,7 +221,7 @@ function App() {
               {
                 '0': <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}
                   pools={pools} stakedAmountForAddress={stakedAmountForAddress} poolIdForAddress={poolIdForAddress} 
-                  callApi={callApi} requestEndEpoch={requestEndEpoch} />,
+                  requestEndEpoch={requestEndEpoch} />,
                 '1': <Leaderboard network={network} />
               }[menu]
             }

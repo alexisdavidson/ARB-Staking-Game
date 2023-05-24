@@ -8,7 +8,7 @@ const fromWei = (num) => ethers.utils.formatEther(num)
 const toWei = (num) => ethers.utils.parseEther(num.toString())
 
 const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedAmountForAddress, poolIdForAddress, 
-    callApi, requestEndEpoch}) => {
+    requestEndEpoch}) => {
     const [showPlaceBetPopup, setShowPlaceBetPopup] = useState(false)
     const [chosenPool, setChosenPool] = useState(0)
     const [chosenAmount, setChosenAmount] = useState(100)
@@ -52,10 +52,6 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
 
         await poolMaster.stake(chosenPool, amount, isUsdc)
     }
-
-    useEffect(async () => {
-        callApi()
-    }, [])
 
     return (
         <Row className="home">
