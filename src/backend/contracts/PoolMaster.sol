@@ -36,9 +36,8 @@ contract PoolMaster is Ownable {
     WinnerAddress[] private winAddresses;
 
     struct Pool {
-        address token;
         string symbol;
-        address lastWinnerToken;
+        string lastWinnerSymbol;
         uint256 tokenCount;
         uint256 usdcCount;
     }
@@ -61,9 +60,9 @@ contract PoolMaster is Ownable {
     event MintSuccessful(address user, uint256 tokenId, bool isAlpha);
 
     constructor() {
-        pools.push(Pool(address(0), "", address(0), 0, 0));
-        pools.push(Pool(address(0), "", address(0), 0, 0));
-        pools.push(Pool(address(0), "", address(0), 0, 0));
+        pools.push(Pool("", "", 0, 0));
+        pools.push(Pool("", "", 0, 0));
+        pools.push(Pool("", "", 0, 0));
     }
 
     function stake(uint256 _poolId, uint256 _amount, bool _isUsdc) public payable {
@@ -98,12 +97,9 @@ contract PoolMaster is Ownable {
         }
     }
 
-    function startEpoch(address _token1, address _token2, string calldata _symbol1, string calldata _symbol2) public onlyOwner {
+    function startEpoch(string calldata _symbol1, string calldata _symbol2) public onlyOwner {
         require(epochEnded, "Current epoch has not ended");
         epochEnded = false;
-
-        pools[0].token = _token1;
-        pools[1].token = _token2;
 
         pools[0].symbol = _symbol1;
         pools[1].symbol = _symbol2;
@@ -128,8 +124,8 @@ contract PoolMaster is Ownable {
         uint256 _poolLoserLength = _poolLoserId == 0 ? stakersPool1.length : stakersPool2.length;
         uint256 _poolWinnerLength = _poolWinnerId == 0 ? stakersPool1.length : stakersPool2.length;
 
-        pools[_poolLoserId].lastWinnerToken = address(0);
-        pools[_poolWinnerId].lastWinnerToken = pools[_poolWinnerId].token;
+        pools[_poolLoserId].lastWinnerSymbol = "";
+        pools[_poolWinnerId].lastWinnerSymbol = pools[_poolWinnerId].symbol;
 
         uint256 _tokenLostAmount = 0;
         uint256 _usdcLostAmount = 0;
@@ -247,12 +243,8 @@ contract PoolMaster is Ownable {
         return _isUsdc ? pools[_poolId].usdcCount : pools[_poolId].tokenCount;
     }
 
-    function getLastWinner(uint256 _poolId) public view returns (address) {
-        return pools[_poolId].lastWinnerToken;
-    }
-
-    function getToken(uint256 _poolId) public view returns (address) {
-        return pools[_poolId].token;
+    function getLastWinner(uint256 _poolId) public view returns (string memory) {
+        return pools[_poolId].lastWinnerSymbol;
     }
 
     function getSymbol(uint256 _poolId) public view returns (string memory) {

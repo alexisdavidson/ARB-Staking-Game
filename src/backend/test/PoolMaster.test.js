@@ -33,7 +33,7 @@ describe("PoolMaster", async function() {
             expect(await poolMaster.usdc()).to.equal(usdc.address);
 
             await expect(poolMaster.connect(deployer).stake(0, 10_000, true)).to.be.revertedWith("Epoch not started yet");
-            await poolMaster.connect(deployer).startEpoch(deployer.address, addr1.address, "ARB", "ETH");
+            await poolMaster.connect(deployer).startEpoch("ARB", "ETH");
 
             await expect(poolMaster.connect(deployer).stake(3, 0, false)).to.be.revertedWith("Invalid pool Id");
             await expect(poolMaster.connect(deployer).stake(0, 0, false)).to.be.revertedWith("Must stake more than 0 tokens");
@@ -54,8 +54,8 @@ describe("PoolMaster", async function() {
         it("Should start and end epoch", async function() {
             expect(await poolMaster.epochEnded()).to.equal(true);
             await expect(poolMaster.connect(deployer).stake(0, 10_000, true)).to.be.revertedWith("Epoch not started yet");
-            await expect(poolMaster.connect(addr1).startEpoch(deployer.address, addr1.address, "ARB", "ETH")).to.be.revertedWith("Ownable: caller is not the owner");
-            await poolMaster.connect(deployer).startEpoch(deployer.address, addr1.address, "ARB", "ETH");
+            await expect(poolMaster.connect(addr1).startEpoch("ARB", "ETH")).to.be.revertedWith("Ownable: caller is not the owner");
+            await poolMaster.connect(deployer).startEpoch("ARB", "ETH");
             expect(await poolMaster.epochEnded()).to.equal(false);
             
             await usdc.connect(deployer).approve(poolMaster.address, 10_000);
@@ -68,7 +68,7 @@ describe("PoolMaster", async function() {
     
     describe("Rules", function() {
         it("Should reward winners", async function() {
-            await poolMaster.connect(deployer).startEpoch(deployer.address, addr1.address, "ARB", "ETH");
+            await poolMaster.connect(deployer).startEpoch("ARB", "ETH");
 
             await usdc.connect(deployer).transfer(addr2.address, toWei(3_000));
             let balanceAddr2Start = await usdc.balanceOf(addr2.address)
@@ -96,7 +96,7 @@ describe("PoolMaster", async function() {
         })
 
         it("Should register usdc stake fee", async function() {
-            await poolMaster.connect(deployer).startEpoch(deployer.address, addr1.address, "ARB", "ETH");
+            await poolMaster.connect(deployer).startEpoch("ARB", "ETH");
 
             let balanceAddr2Start = await usdc.balanceOf(deployer.address)
 
