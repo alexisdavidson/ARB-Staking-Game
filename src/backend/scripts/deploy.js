@@ -35,7 +35,7 @@ async function main() {
   console.log("Setters functions called")
   
   // to remove for mainnet
-  await poolMaster.startEpoch(deployer.address, "0xaFc26D44Eeb63441f4D83De8b10772DD79169a0e", "BNB", "PEPE");
+  await poolMaster.startEpoch("BNB", "ETH");
   console.log("Test functions called")
 
   // todo
