@@ -148,8 +148,11 @@ function App() {
   const requestEndEpoch = async () => {
       console.log("requestEndEpoch")
       
-      Axios.post('http://localhost:4000/api/end_epoch').then((response) => {
-      // Axios.post('/api/end_epoch').then((response) => { // production environment
+      let url = 'http://localhost:4000/api/end_epoch'
+      if (process.env.REACT_APP_IS_PRODUCTION_ENVIRONMENT == "true")
+        url = '/api/end_epoch'
+      
+      Axios.post(url).then((response) => { // production environment
           const serverResult = response.data
           console.log(serverResult)
 
