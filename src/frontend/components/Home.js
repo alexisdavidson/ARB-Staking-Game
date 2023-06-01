@@ -73,7 +73,7 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
                         Current phase: {phaseIdToText()}
                     </div>
                     <div>
-                        {phase != 2 && false? (
+                        {phase != 2 ? (
                             <>
                                 {getTimeLeftString(timeleft)}
                             </>

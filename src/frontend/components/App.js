@@ -96,8 +96,9 @@ function App() {
   const loadContractsData = async () => {
     console.log("loadContractsData")
 
-    let phase = await poolMasterRef.current.getPhase()
+    let phase = parseInt(await poolMasterRef.current.getPhase())
     setPhase(phase)
+    console.log("phase", phase)
 
     let timestampStartEpoch = parseInt(await poolMasterRef.current.timestampStartEpoch())
     console.log("timestampStartEpoch", timestampStartEpoch)
