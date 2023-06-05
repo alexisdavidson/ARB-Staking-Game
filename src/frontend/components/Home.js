@@ -78,9 +78,13 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
                                 {getTimeLeftString(timeleft)}
                             </>
                         ) : ( 
-                            <Button className="mx-2" variant="success" size="lg" onClick={() => requestEndEpoch()}>
-                                Find out who won!
-                            </Button>
+                            <>
+                            Transitioning to the next epoch. This may take a few minutes...
+                            </>
+                            // <Button className="mx-2" variant="success" size="lg" onClick={() => {requestEndEpoch(); 
+                            //     alert(("Transitioning to next epoch. This may take a few minutes..."));}}>
+                            //     Find out who won!
+                            // </Button>
                         )}
                     </div>
                 </Row>

@@ -13,6 +13,8 @@ export const getTimeLeftStringStartDuration = (currentTimestamp, startTimestamp,
 }
 
 export const getTimeLeftString = (timestampRelative) => {
+    if (timestampRelative < 0)
+        timestampRelative = 0
     const daysLeft = Math.floor(timestampRelative / units.day)
     timestampRelative -= daysLeft * units.day
 

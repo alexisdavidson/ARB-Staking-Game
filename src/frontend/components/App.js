@@ -177,10 +177,25 @@ function App() {
     console.log("timeleftTemp: " + timeleftTemp)
     console.log("Date.now(): " + dateNow)
     console.log("Set interval")
-    setIntervalVariable(setInterval(() => {
-      dateNow = Date.now() + testOffset
-      setTimeleft(timestampEnd - dateNow)
-    }, 1000))
+
+    if (intervalRef.current == null) {
+      let intervalId = setInterval(() => {
+        dateNow = Date.now() + testOffset
+
+        // console.log(".")
+        let timeleftTemp = timestampEnd - dateNow
+        setTimeleft(timeleftTemp)
+  
+        // if (timeleftTemp <= 0 && phase < 2) {
+        //   loadContractsData()
+        //   clearInterval(intervalId);
+        //   console.log("reset interval")
+        // }
+      }, 1000)
+
+      intervalRef.current = intervalId
+      setIntervalVariable(intervalId)
+    }
   }
 
   useEffect(async () => {
