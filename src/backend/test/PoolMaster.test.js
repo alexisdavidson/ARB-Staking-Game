@@ -67,7 +67,7 @@ describe("PoolMaster", async function() {
     })
     
     describe("Rules", function() {
-        it("Should reward winners", async function() {
+        it("Should reward winners with usdc", async function() {
             await poolMaster.connect(deployer).startEpoch("ARB", "ETH");
 
             await usdc.connect(deployer).transfer(addr2.address, toWei(3_000));
@@ -95,6 +95,33 @@ describe("PoolMaster", async function() {
             expect(await usdc.balanceOf(addr2.address)).to.equal(balanceAddr2After);
         })
 
+        it("Should reward winners with token", async function() {
+            await poolMaster.connect(deployer).startEpoch("ARB", "ETH");
+
+            // await token.connect(deployer).transfer(addr2.address, toWei(3_000));
+            let balanceAddr2Start = await token.balanceOf(addr2.address)
+            console.log("balanceAddr2Start", balanceAddr2Start)
+            
+            await token.connect(deployer).approve(poolMaster.address, 1_000);
+            await poolMaster.connect(deployer).stake(0, 1_000, false);
+            await token.connect(addr1).approve(poolMaster.address, 1_000);
+            await poolMaster.connect(addr1).stake(0, 1_000, false);
+
+            await token.connect(addr2).approve(poolMaster.address, 1_000);
+            await poolMaster.connect(addr2).stake(1, 1_000, false);
+            await token.connect(addr3).approve(poolMaster.address, 1_000);
+            await poolMaster.connect(addr3).stake(1, 1_000, false);
+            
+            let balanceAddr2AfterStake = balanceAddr2Start - 1_000
+            console.log("balanceAddr2AfterStake", balanceAddr2AfterStake)
+            expect(await token.balanceOf(addr2.address)).to.equal(balanceAddr2AfterStake);
+
+            await poolMaster.connect(deployer).endEpoch(0);
+            
+            let balanceAddr2After = balanceAddr2AfterStake + 1_000 - 1_000 * 0.125
+            console.log("balanceAddr2After", balanceAddr2After)
+            expect(await token.balanceOf(addr2.address)).to.equal(balanceAddr2After);
+        })
         it("Should register usdc stake fee", async function() {
             await poolMaster.connect(deployer).startEpoch("ARB", "ETH");
 
