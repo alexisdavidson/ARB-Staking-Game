@@ -101,6 +101,8 @@ describe("PoolMaster", async function() {
             // await token.connect(deployer).transfer(addr2.address, toWei(3_000));
             let balanceAddr2Start = await token.balanceOf(addr2.address)
             console.log("balanceAddr2Start", balanceAddr2Start)
+            let balanceAddr1Start = await token.balanceOf(addr1.address)
+            console.log("balanceAddr1Start", balanceAddr1Start)
             
             await token.connect(deployer).approve(poolMaster.address, 1_000);
             await poolMaster.connect(deployer).stake(0, 1_000, false);
@@ -115,12 +117,20 @@ describe("PoolMaster", async function() {
             let balanceAddr2AfterStake = balanceAddr2Start - 1_000
             console.log("balanceAddr2AfterStake", balanceAddr2AfterStake)
             expect(await token.balanceOf(addr2.address)).to.equal(balanceAddr2AfterStake);
+            console.log("balanceAddr1AfterStake", await token.balanceOf(addr1.address))
 
             await poolMaster.connect(deployer).endEpoch(0);
             
             let balanceAddr2After = balanceAddr2AfterStake + 1_000 - 1_000 * 0.125
             console.log("balanceAddr2After", balanceAddr2After)
+            console.log("balanceAddr1After", await token.balanceOf(addr1.address))
             expect(await token.balanceOf(addr2.address)).to.equal(balanceAddr2After);
+
+            let amountLosers = 2
+            let rewardsForWinners = 1_000 * 0.1 * amountLosers
+            let amountWinners = 2
+            let rewardPerWinner = rewardsForWinners / amountWinners
+            expect(await token.balanceOf(addr1.address)).to.equal(10_000 + rewardPerWinner);
         })
         it("Should register usdc stake fee", async function() {
             await poolMaster.connect(deployer).startEpoch("ARB", "ETH");

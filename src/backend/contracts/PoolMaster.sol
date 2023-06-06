@@ -40,6 +40,8 @@ contract PoolMaster is Ownable {
         string lastWinnerSymbol;
         uint256 tokenCount;
         uint256 usdcCount;
+        uint256 tokenStakers;
+        uint256 usdcStakers;
     }
 
     struct Staker {
@@ -60,9 +62,9 @@ contract PoolMaster is Ownable {
     event MintSuccessful(address user, uint256 tokenId, bool isAlpha);
 
     constructor() {
-        pools.push(Pool("", "", 0, 0));
-        pools.push(Pool("", "", 0, 0));
-        pools.push(Pool("", "", 0, 0));
+        pools.push(Pool("", "", 0, 0, 0, 0));
+        pools.push(Pool("", "", 0, 0, 0, 0));
+        pools.push(Pool("", "", 0, 0, 0, 0));
     }
 
     function stake(uint256 _poolId, uint256 _amount, bool _isUsdc) public payable {
@@ -87,6 +89,8 @@ contract PoolMaster is Ownable {
         stakersMapping[msg.sender] = _staker;
         pools[_poolId].tokenCount += _isUsdc ? 0 : _amount;
         pools[_poolId].usdcCount += _isUsdc ? _amount : 0;
+        pools[_poolId].tokenStakers += _isUsdc ? 0 : 1;
+        pools[_poolId].usdcStakers += _isUsdc ? 1 : 0;
 
         if (_poolId == 0) {
             stakersPool1.push(_staker);
@@ -111,6 +115,14 @@ contract PoolMaster is Ownable {
         pools[0].usdcCount = 0;
         pools[1].usdcCount = 0;
         pools[2].usdcCount = 0;
+
+        pools[0].tokenStakers = 0;
+        pools[1].tokenStakers = 0;
+        pools[2].tokenStakers = 0;
+
+        pools[0].usdcStakers = 0;
+        pools[1].usdcStakers = 0;
+        pools[2].usdcStakers = 0;
 
         timestampStartEpoch = block.timestamp;
     }
@@ -158,12 +170,21 @@ contract PoolMaster is Ownable {
         uint256 _usdcWinningTokenPool = (_usdcLostAmount * winnerTokensPercent) / 10_000;
         uint256 _tokenUserWinAmount = 0;
         uint256 _usdcUserWinAmount = 0;
-        if (pools[_poolWinnerId].tokenCount > 0) {
-            _tokenUserWinAmount = _tokenWinningTokenPool / pools[_poolWinnerId].tokenCount;
+        console.log("pools[_poolWinnerId].tokenStakers");
+        console.log(_poolWinnerId);
+        console.log(pools[_poolWinnerId].tokenStakers);
+        if (pools[_poolWinnerId].tokenStakers > 0) {
+            _tokenUserWinAmount = _tokenWinningTokenPool / pools[_poolWinnerId].tokenStakers;
         }
-        if (pools[_poolWinnerId].usdcCount > 0) {
-            _usdcUserWinAmount = _usdcWinningTokenPool / pools[_poolWinnerId].usdcCount;
+        if (pools[_poolWinnerId].usdcStakers > 0) {
+            _usdcUserWinAmount = _usdcWinningTokenPool / pools[_poolWinnerId].usdcStakers;
         }
+        console.log("_tokenUserWinAmount");
+        console.log(_tokenUserWinAmount);
+        console.log("_tokenWinningTokenPool");
+        console.log(_tokenWinningTokenPool);
+        console.log("pools[_poolWinnerId].tokenStakers");
+        console.log(pools[_poolWinnerId].tokenStakers);
 
         for(uint256 i = 0; i < _poolWinnerLength;) {
             Staker memory _staker = _poolWinnerId == 0 ? stakersPool1[i] : stakersPool2[i];
@@ -191,6 +212,8 @@ contract PoolMaster is Ownable {
         uint256 _usdcPool3Amount = (_usdcLostAmount * pool3TokensPercent) / 10_000;
         uint256 _tokenUserPool3Amount = 0;
         uint256 _usdcUserPool3Amount = 0;
+        // console.log("pools[2].tokenCount");
+        // console.log(pools[2].tokenCount);
         if (pools[2].tokenCount > 0) {
             _tokenUserPool3Amount = _tokenPool3Amount / pools[2].tokenCount;
         }
