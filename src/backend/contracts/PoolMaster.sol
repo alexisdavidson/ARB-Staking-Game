@@ -214,11 +214,11 @@ contract PoolMaster is Ownable {
         uint256 _usdcUserPool3Amount = 0;
         // console.log("pools[2].tokenCount");
         // console.log(pools[2].tokenCount);
-        if (pools[2].tokenCount > 0) {
-            _tokenUserPool3Amount = _tokenPool3Amount / pools[2].tokenCount;
+        if (pools[2].tokenStakers > 0) {
+            _tokenUserPool3Amount = _tokenPool3Amount / pools[2].tokenStakers;
         }
-        if (pools[2].usdcCount > 0) {
-            _usdcUserPool3Amount = _usdcPool3Amount / pools[2].usdcCount;
+        if (pools[2].usdcStakers > 0) {
+            _usdcUserPool3Amount = _usdcPool3Amount / pools[2].usdcStakers;
         }
 
         for(uint256 i = 0; i < _pool3Length;) {

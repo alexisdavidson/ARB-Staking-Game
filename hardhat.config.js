@@ -37,7 +37,7 @@ module.exports = {
        accounts: ['0x' + process.env.REACT_APP_PRIVATE_KEY_TESTNETS],
        allowUnlimitedContractSize: true,
        gas: 2100000,
-       gasPrice: 45000000000,
+       gasPrice: 3000000000,
      },
      arbitrumGoerli: {
        url: "https://goerli-rollup.arbitrum.io/rpc",
