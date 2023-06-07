@@ -141,10 +141,10 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
                             </Form>
                         </div>
                         <div className="my-5">
-                            <Button className="mx-2" variant="warning" size="lg" onClick={() => setShowPlaceBetPopup(false)}>
+                            <Button className="mx-2 betButton" variant="warning" size="lg" onClick={() => setShowPlaceBetPopup(false)}>
                                 Cancel 
                             </Button>
-                            <Button className="mx-2" variant="success" size="lg" onClick={() => stake()}>
+                            <Button className="mx-2 betButton" variant="success" size="lg" onClick={() => stake()}>
                                 Place Bet
                             </Button>
                         </div>

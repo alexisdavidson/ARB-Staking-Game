@@ -37,7 +37,7 @@ const PoolCard = ({pool, poolNumber, phase, clickBet, noWinner, stakedAmountForA
                         <div className='d-grid'>
                             {phase == 0 ? (
                                 stakedAmountForAddress == 0 ? (
-                                    <Button variant="success" size="lg" onClick={() => clickBet(poolNumber - 1)}>
+                                    <Button className="betButton" variant="success" size="lg" onClick={() => clickBet(poolNumber - 1)}>
                                         Bet
                                     </Button>
                                 ) : ( <></> )

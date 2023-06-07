@@ -69,6 +69,10 @@ body {
   align-items: center;
 }
 
+.betButton {
+  text-transform: uppercase;
+}
+
 .home {
   margin-top: 5vh;
 }
