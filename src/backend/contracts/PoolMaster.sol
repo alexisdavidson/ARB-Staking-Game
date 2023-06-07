@@ -72,6 +72,7 @@ contract PoolMaster is Ownable {
         require(getPhase() == 0, "Betting phase has ended.");
 
         require(_poolId <= 2, "Invalid pool Id");
+        require(!(_poolId == 2 && _isUsdc), "Cannot stake usdc in third pool.");
         require(stakersMapping[msg.sender].stakerAddress == address(0), "User already staked for this epoch");
 
         uint256 _stakeAmount = _amount;
@@ -130,6 +131,7 @@ contract PoolMaster is Ownable {
     // Der Pool, dessen token den anderen in absoluten % outperformt hat, gewinnt
     function endEpoch(uint256 _poolWinnerId) public onlyOwner {
         require(!epochEnded, "Current epoch already ended");
+        require(getPhase() == 2, "Epoch not ready to be ended yet.");
         epochEnded = true;
 
         uint256 _poolLoserId = 1 - _poolWinnerId;
