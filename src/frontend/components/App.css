@@ -1,6 +1,6 @@
 @font-face {
   font-family: montserratFont;
-  /* src: url("./assets/fonts/DMSans-Regular.ttf"); */
+  src: url("./assets/Rubik-Regular.ttf");
 }
 @font-face {
   font-family: headerFont;
@@ -22,11 +22,12 @@ html, body {
   /* height: 100%;
   margin: 0; */
   padding: 0;
-  /* font-family: montserratFont; */
+  font-family: montserratFont;
   text-align: center;
   /* background-color: #090212; */
   overflow-x: hidden;
   color: white;
+  text-transform: uppercase;
 }
 body {
   background-image: linear-gradient(to right, #558dc3, #be4947, #9ec640);
@@ -109,6 +110,9 @@ body {
   font-weight: bold;
   text-transform: uppercase;
   height: 3rem;
+  min-width: 10rem;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .placeBetPopup {

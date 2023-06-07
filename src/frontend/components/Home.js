@@ -29,6 +29,9 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
     const clickBet = (poolId) => {
         setChosenPool(poolId)
         setShowPlaceBetPopup(true)
+
+        if (poolId == 2)
+            setchosenUsdc(false)
     }
 
     const toggleTokenSwitch = () => {
@@ -58,7 +61,7 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
             <Row className="cardRow">
                 <PoolCard pool={pools[0]} poolNumber={1} phase={phase} clickBet={clickBet} stakedAmountForAddress={stakedAmountForAddress} />
                 <PoolCard pool={pools[1]} poolNumber={2} phase={phase} clickBet={clickBet} stakedAmountForAddress={stakedAmountForAddress} />
-                <PoolCard pool={pools[2]} poolNumber={3} phase={phase} clickBet={clickBet} stakedAmountForAddress={stakedAmountForAddress}  noWinner/>
+                <PoolCard pool={pools[2]} poolNumber={3} phase={phase} clickBet={clickBet} stakedAmountForAddress={stakedAmountForAddress}  noWinner noUsdc/>
             </Row>
             {stakedAmountForAddress > 0 ? (
                 <Row className="timeLeftRow mt-5">
@@ -100,17 +103,21 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
                     </div>
                     <div className="placeBetPopup">
                         <h1>Place a Bet</h1>
-                        <div className="my-3">
-                            <Form className="switchCurrency">
-                                <Form.Check className="switchCurrency"
-                                    type="switch"
-                                    id="custom-switch"
-                                    label={chosenUsdc ? "USDC" : "$ATLAS"}
-                                    onClick={toggleTokenSwitch}
-                                    defaultChecked={!chosenUsdc}
-                                />
-                            </Form>
-                        </div>
+                        {chosenPool != 2 ? (
+                            <div className="my-3">
+                                <Form className="switchCurrency">
+                                    <Form.Check className="switchCurrency"
+                                        type="switch"
+                                        id="custom-switch"
+                                        label={chosenUsdc ? "USDC" : "$ATLAS"}
+                                        onClick={toggleTokenSwitch}
+                                        defaultChecked={!chosenUsdc}
+                                    />
+                                </Form>
+                            </div>
+                        ) : (
+                            <></>
+                        )}
                         <div className="my-3">
                             <Form>
                             <Form.Group controlId="formRange" className="d-flex align-items-center justify-content-center">
