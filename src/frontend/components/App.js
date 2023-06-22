@@ -6,6 +6,7 @@ import {
 import './App.css';
 import Navbar from './Navbar'
 import Footer from './Footer'
+import Dapp from './Dapp'
 import Home from './Home'
 import Leaderboard from "./Leaderboard";
 
@@ -224,15 +225,37 @@ function App() {
     <BrowserRouter>
       <div className="App" id="wrapper">
         <div className="m-0 p-0 container-fluid">
-          <Navbar web3Handler={web3Handler} account={account} setMenu={setMenu} />
-          {
-              {
-                '0': <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}
+
+          
+          <Routes>
+            <Route path="/" element={
+              <>
+                <Home />
+              </>
+            } />
+            <Route path="/dapp" element={
+              <>
+                <Navbar web3Handler={web3Handler} account={account} setMenu={setMenu} />
+                <Dapp poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}
                   pools={pools} stakedAmountForAddress={stakedAmountForAddress} poolIdForAddress={poolIdForAddress} 
-                  requestEndEpoch={requestEndEpoch} />,
-                '1': <Leaderboard network={network} />
-              }[menu]
-            }
+                  requestEndEpoch={requestEndEpoch} />
+              </>
+            } />
+            <Route path="/leaderboard" element={
+              <>
+                <Navbar web3Handler={web3Handler} account={account} setMenu={setMenu} />
+                <Leaderboard network={network} />
+              </>
+            } />
+          </Routes>
+          {/* {
+            {
+              '0': <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}
+                pools={pools} stakedAmountForAddress={stakedAmountForAddress} poolIdForAddress={poolIdForAddress} 
+                requestEndEpoch={requestEndEpoch} />,
+              '1': <Leaderboard network={network} />
+            }[menu]
+          } */}
 
           <Footer />
         </div>
