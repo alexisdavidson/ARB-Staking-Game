@@ -10,7 +10,7 @@ const toWei = (num) => ethers.utils.parseEther(num.toString())
 const PoolCard = ({pool, poolNumber, phase, clickBet, noWinner, stakedAmountForAddress, noUsdc}) => {
     return (
         <Card bg="dark" className="cardPool">
-            <Card.Title>Pool {poolNumber}</Card.Title>
+            <Card.Title>Vault {poolNumber}</Card.Title>
             {pool != null ? (
                 <>
                     <Card.Body color="secondary">

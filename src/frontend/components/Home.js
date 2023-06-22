@@ -66,7 +66,7 @@ const Home = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
             {stakedAmountForAddress > 0 ? (
                 <Row className="timeLeftRow mt-5">
                     <div>
-                        You bet {stakedAmountForAddress} in pool {poolIdForAddress + 1}
+                        You bet {stakedAmountForAddress} in vault {poolIdForAddress + 1}
                     </div>
                 </Row>
             ) : (<></>)}
