@@ -46,7 +46,7 @@ module.exports = {
      },
      arbitrumOne: {
        url: "https://arb1.arbitrum.io/rpc",
-       //accounts: [ARBITRUM_MAINNET_TEMPORARY_PRIVATE_KEY]
+       accounts: ['0x' + process.env.REACT_APP_PRIVATE_KEY_ARBITRUM_ONE],
      }
     //  mainnet: {
     //   url: process.env.REACT_APP_API_URL_MAINNET_INFURA,
@@ -63,6 +63,7 @@ module.exports = {
     tests: "./src/backend/test"
   },
   etherscan: {
-    apiKey: process.env.REACT_APP_ETHERSCAN_API_KEY
+    // apiKey: process.env.REACT_APP_ETHERSCAN_API_KEY
+    apiKey: process.env.REACT_APP_ARBISCAN_API_KEY
   }
 };

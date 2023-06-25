@@ -28,7 +28,7 @@ async function main() {
   // const usdcAddress = usdc.address
   const tokenAddress = token.address
   // const usdcAddress = "0x5d7897579269F234015ba65743D9108F4AD5dB22" // sepolia
-  const usdcAddress = "0x5d7897579269F234015ba65743D9108F4AD5dB22" // arbitrum: todo
+  const usdcAddress = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831" // arbitrum
   // const tokenAddress = "0x4F69a31125a4bA6a51786181d5cC5a15E69df0c5"
   await poolMaster.setTokenAddress(tokenAddress);
   await poolMaster.setUsdcAddress(usdcAddress);
@@ -36,12 +36,11 @@ async function main() {
   console.log("Setters functions called")
   
   // to remove for mainnet
-  await poolMaster.startEpoch("BNB", "ETH");
-  console.log("Test functions called")
+  // await poolMaster.startEpoch("BNB", "ETH");
+  // console.log("Test functions called")
 
   // todo
-  
-  console.log("Transfer Ownership functions called")
+  // console.log("Transfer Ownership functions called")
 
   console.log("Eth spent for deployment script: ", balanceBefore - fromWei(await deployer.getBalance()));
 }

@@ -50,8 +50,8 @@ function App() {
 
   const zeroPad = (num, places) => String(num).padStart(places, '0')
 
-  const network = 'sepolia'
-  // const network = 'ethereum'
+  // const network = 'sepolia'
+  const network = 'arbitrum'
 
   const web3Handler = async () => {
     console.log("web3Handler")
