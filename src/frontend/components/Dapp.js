@@ -46,6 +46,7 @@ const Dapp = ({poolMaster, account, usdc, token, phase, timeleft, pools, stakedA
         setShowPlaceBetPopup(false)
         
         if (chosenUsdc) {
+            amount = ethers.utils.parseUnits(chosenAmount, 6);
             if (parseInt(await usdc.allowance(account, poolMaster.address)) < amount)
                 await(await usdc.approve(poolMaster.address, amount)).wait()
         } else {
