@@ -56,10 +56,15 @@ body {
   cursor: pointer;
 }
 
-.navbarLink {
+.navbarLink, a {
   font-weight: bold;
   margin: 4rem;
   color: black;
+  text-decoration: none;
+}
+
+a:hover {
+  color: white;
 }
 
 .connectButtonCol {

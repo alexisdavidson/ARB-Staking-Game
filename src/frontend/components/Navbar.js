@@ -20,15 +20,15 @@ const Navbar = ({ account, menu, setMobileMenu, setMenu, setMenuConnectWallet, w
             {/* DESKTOP */}
             <div className="displayDesktop">
                 <Col className="logoCol col-4">
-                    <div className="logoCountdown" onClick={() => setMenu(0)}>
+                    <div className="logoCountdown">
                     </div>
                 </Col>
                 <Col className="m-0 p-0 col-4 navbarLinks">
-                    <Image src={logo} className="logoimage" onClick={() => setMenu(0)}/>
+                    <a href="dapp"><Image src={logo} className="logoimage"/></a>
                 </Col>
                 <Col className="col-4 connectButtonCol">
-                    <div className="navbarLink" onClick={() => setMenu(1)}>
-                        Leaderboard
+                    <div className="navbarLink">
+                        <a href="leaderboard">Leaderboard</a>
                     </div>
                     <div>
                         {account ? (

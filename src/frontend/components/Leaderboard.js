@@ -30,7 +30,9 @@ const Leaderboard = ({network}) => {
         for(let i = 0; i < arrayLength; i++) {
             elementsTemp.push({
                 address: winnerAddressStakerAddressForLastSeconds[i],
-                amount: fromWei(winnerAddressAmountsForLastSeconds[i]),
+                amount: winnerAddressIsUsdcForLastSeconds[i] ? 
+                    fromWei(winnerAddressAmountsForLastSeconds[i])
+                    : ethers.utils.formatUnits(winnerAddressAmountsForLastSeconds[i], 6),
                 isUsdc: winnerAddressIsUsdcForLastSeconds[i]
             })
         }
