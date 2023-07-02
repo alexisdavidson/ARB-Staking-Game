@@ -127,18 +127,18 @@ function App() {
     poolsTemp.push({
       token: await poolMaster.getSymbol(0),
       tokenCount: fromWei(await poolMaster.getStakedTokens(0, false)),
-      usdcCount: fromWei(await poolMaster.getStakedTokens(0, true)),
+      usdcCount: ethers.utils.formatUnits(await poolMaster.getStakedTokens(0, true), 6),
       lastWinner: await poolMaster.getLastWinner(0)
     })
     poolsTemp.push({
       token: await poolMaster.getSymbol(1),
       tokenCount: fromWei(await poolMaster.getStakedTokens(1, false)),
-      usdcCount: fromWei(await poolMaster.getStakedTokens(1, true)),
+      usdcCount: ethers.utils.formatUnits(await poolMaster.getStakedTokens(1, true), 6),
       lastWinner: await poolMaster.getLastWinner(1)
     })
     poolsTemp.push({
       tokenCount: fromWei(await poolMaster.getStakedTokens(2, false)),
-      usdcCount: fromWei(await poolMaster.getStakedTokens(2, true)),
+      usdcCount: ethers.utils.formatUnits(await poolMaster.getStakedTokens(2, true), 6),
     })
 
     setPools(poolsTemp)
